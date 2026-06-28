@@ -1,0 +1,5 @@
+// Excludes 0/O, 1/I/L for readability
+export const VERIFICATION_CODE_CHARSET =
+  "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+export const DEFAULT_VERIFICATION_CODE_LENGTH = 8;

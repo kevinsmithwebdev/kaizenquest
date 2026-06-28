@@ -1,6 +1,6 @@
 import { Mail } from "lucide-react";
 
-import { VerifyEmailForm } from "@/components/verify-email-form";
+import { VerifyEmailForm } from "@/components/auth";
 
 type VerifyEmailPageProps = {
   searchParams: Promise<{ email?: string }>;

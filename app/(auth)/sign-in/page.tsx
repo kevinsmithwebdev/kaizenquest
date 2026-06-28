@@ -1,6 +1,6 @@
 import { Compass } from "lucide-react";
 
-import { SignInForm } from "@/components/sign-in-form";
+import { SignInForm } from "@/components/auth";
 
 export default function SignInPage() {
   return (

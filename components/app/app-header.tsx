@@ -4,27 +4,11 @@ import { signOut } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import type { AuthUser } from "@/lib/auth";
 
+import { getGreeting, getInitial } from "./utils";
+
 type AppHeaderProps = {
   user: AuthUser;
 };
-
-function getGreeting(name: string): string {
-  const hour = new Date().getHours();
-
-  if (hour < 12) {
-    return `Good morning, ${name}!`;
-  }
-
-  if (hour < 18) {
-    return `Good afternoon, ${name}!`;
-  }
-
-  return `Good evening, ${name}!`;
-}
-
-function getInitial(name: string): string {
-  return name.trim().charAt(0).toUpperCase() || "?";
-}
 
 export function AppHeader({ user }: AppHeaderProps) {
   return (

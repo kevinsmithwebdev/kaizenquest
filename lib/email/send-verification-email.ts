@@ -1,27 +1,14 @@
-import { Resend } from "resend";
+import { VERIFICATION_EMAIL_SUBJECT } from "./email.constants";
+import type { SendVerificationEmailParams } from "./email.types";
+import { escapeHtml } from "./escape-html";
+import { getFromAddress } from "./get-from-address";
+import { getResendClient } from "./get-resend-client";
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
-
-function getFromAddress(): string {
-  return process.env.EMAIL_FROM ?? "Kaizen Quest <onboarding@resend.dev>";
-}
-
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-export async function sendVerificationEmail(params: {
-  to: string;
-  name: string;
-  code: string;
-}): Promise<void> {
+export async function sendVerificationEmail(
+  params: SendVerificationEmailParams,
+): Promise<void> {
   const { to, name, code } = params;
+  const resend = getResendClient();
 
   if (!resend) {
     console.log("\n--- Verification email (dev — no RESEND_API_KEY) ---");
@@ -37,7 +24,7 @@ export async function sendVerificationEmail(params: {
   const { error } = await resend.emails.send({
     from: getFromAddress(),
     to,
-    subject: "Verify your Kaizen Quest account",
+    subject: VERIFICATION_EMAIL_SUBJECT,
     html: `
       <p>Hi ${safeName},</p>
       <p>Your verification code is:</p>

@@ -1,6 +1,6 @@
 import { Compass } from "lucide-react";
 
-import { SignUpForm } from "@/components/sign-up-form";
+import { SignUpForm } from "@/components/auth";
 
 export default function SignUpPage() {
   return (

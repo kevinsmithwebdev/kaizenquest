@@ -1,7 +1,7 @@
 import type { AuthUser } from "@/lib/auth";
 
-import { AppHeader } from "@/components/app-header";
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppHeader } from "./app-header";
+import { AppSidebar } from "./app-sidebar";
 
 type AppShellProps = {
   children: React.ReactNode;

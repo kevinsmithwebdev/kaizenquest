@@ -6,6 +6,8 @@ import { useActionState } from "react";
 import { signIn, type SignInState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 
+import { EmailField, PasswordField } from "./form-fields";
+
 const initialState: SignInState = { error: null };
 
 export function SignInForm() {
@@ -23,41 +25,8 @@ export function SignInForm() {
           </p>
         ) : null}
 
-        <div className="space-y-2">
-          <label
-            htmlFor="email"
-            className="text-foreground text-sm font-medium"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            required
-            placeholder="you@example.com"
-            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            htmlFor="password"
-            className="text-foreground text-sm font-medium"
-          >
-            Password
-          </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            placeholder="••••••••"
-            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
-          />
-        </div>
+        <EmailField />
+        <PasswordField />
 
         <Button
           type="submit"
