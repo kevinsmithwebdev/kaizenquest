@@ -11,7 +11,7 @@ export function AppSidebar() {
         <div className="bg-brand text-brand-foreground flex size-9 items-center justify-center rounded-lg">
           <Compass className="size-5" aria-hidden />
         </div>
-        <span className="text-sidebar-foreground text-base font-semibold">
+        <span className="text-sidebar-foreground font-heading text-base font-semibold">
           Kaizen Quest App
         </span>
       </div>
