@@ -15,16 +15,16 @@ export function SignUpForm() {
     <>
       <form
         action={formAction}
-        className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm"
+        className="border-border bg-card space-y-4 rounded-2xl border p-6 shadow-sm"
       >
         {state.error ? (
-          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p className="bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm">
             {state.error}
           </p>
         ) : null}
 
         <div className="space-y-2">
-          <label htmlFor="name" className="text-sm font-medium text-foreground">
+          <label htmlFor="name" className="text-foreground text-sm font-medium">
             Name
           </label>
           <input
@@ -34,12 +34,15 @@ export function SignUpForm() {
             autoComplete="name"
             required
             placeholder="Your name"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none ring-ring/50 focus-visible:ring-3"
+            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="email"
+            className="text-foreground text-sm font-medium"
+          >
             Email
           </label>
           <input
@@ -49,12 +52,15 @@ export function SignUpForm() {
             autoComplete="email"
             required
             placeholder="you@example.com"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none ring-ring/50 focus-visible:ring-3"
+            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="password"
+            className="text-foreground text-sm font-medium"
+          >
             Password
           </label>
           <input
@@ -65,18 +71,26 @@ export function SignUpForm() {
             required
             minLength={8}
             placeholder="••••••••"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none ring-ring/50 focus-visible:ring-3"
+            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
           />
         </div>
 
-        <Button type="submit" variant="brand" className="h-10 w-full" disabled={pending}>
+        <Button
+          type="submit"
+          variant="brand"
+          className="h-10 w-full"
+          disabled={pending}
+        >
           {pending ? "Creating account…" : "Create account"}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-6 text-center text-sm">
         Already have an account?{" "}
-        <Link href="/sign-in" className="font-medium text-brand hover:underline">
+        <Link
+          href="/sign-in"
+          className="text-brand font-medium hover:underline"
+        >
           Sign in
         </Link>
       </p>

@@ -13,22 +13,28 @@ type VerifyEmailFormProps = {
 };
 
 export function VerifyEmailForm({ defaultEmail }: VerifyEmailFormProps) {
-  const [state, formAction, pending] = useActionState(verifyEmail, initialState);
+  const [state, formAction, pending] = useActionState(
+    verifyEmail,
+    initialState,
+  );
 
   return (
     <>
       <form
         action={formAction}
-        className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm"
+        className="border-border bg-card space-y-4 rounded-2xl border p-6 shadow-sm"
       >
         {state.error ? (
-          <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <p className="bg-destructive/10 text-destructive rounded-lg px-3 py-2 text-sm">
             {state.error}
           </p>
         ) : null}
 
         <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">
+          <label
+            htmlFor="email"
+            className="text-foreground text-sm font-medium"
+          >
             Email
           </label>
           <input
@@ -40,12 +46,12 @@ export function VerifyEmailForm({ defaultEmail }: VerifyEmailFormProps) {
             defaultValue={defaultEmail}
             readOnly={defaultEmail.length > 0}
             placeholder="you@example.com"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none ring-ring/50 read-only:cursor-default read-only:opacity-70 focus-visible:ring-3"
+            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm outline-none read-only:cursor-default read-only:opacity-70 focus-visible:ring-3"
           />
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="code" className="text-sm font-medium text-foreground">
+          <label htmlFor="code" className="text-foreground text-sm font-medium">
             Verification code
           </label>
           <input
@@ -58,18 +64,26 @@ export function VerifyEmailForm({ defaultEmail }: VerifyEmailFormProps) {
             minLength={8}
             maxLength={8}
             placeholder="AB3K9P2X"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm uppercase tracking-widest outline-none ring-ring/50 focus-visible:ring-3"
+            className="border-input bg-background ring-ring/50 h-10 w-full rounded-lg border px-3 text-sm tracking-widest uppercase outline-none focus-visible:ring-3"
           />
         </div>
 
-        <Button type="submit" variant="brand" className="h-10 w-full" disabled={pending}>
+        <Button
+          type="submit"
+          variant="brand"
+          className="h-10 w-full"
+          disabled={pending}
+        >
           {pending ? "Verifying…" : "Verify email"}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="text-muted-foreground mt-6 text-center text-sm">
         Already verified?{" "}
-        <Link href="/sign-in" className="font-medium text-brand hover:underline">
+        <Link
+          href="/sign-in"
+          className="text-brand font-medium hover:underline"
+        >
           Sign in
         </Link>
       </p>

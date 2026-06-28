@@ -14,7 +14,9 @@ export function AppShell({ children, user }: AppShellProps) {
       <AppSidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <AppHeader user={user} />
-        <main className="flex-1 overflow-auto bg-background p-6">{children}</main>
+        <main className="bg-background flex-1 overflow-auto p-6">
+          {children}
+        </main>
       </div>
     </div>
   );

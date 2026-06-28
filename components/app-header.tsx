@@ -28,12 +28,12 @@ function getInitial(name: string): string {
 
 export function AppHeader({ user }: AppHeaderProps) {
   return (
-    <header className="flex items-center justify-between border-b border-border bg-card px-6 py-4">
+    <header className="border-border bg-card flex items-center justify-between border-b px-6 py-4">
       <div>
-        <h1 className="text-xl font-semibold text-foreground">
+        <h1 className="text-foreground text-xl font-semibold">
           {getGreeting(user.name)}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Small consistent actions. Big transformation.
         </p>
       </div>
@@ -47,13 +47,13 @@ export function AppHeader({ user }: AppHeaderProps) {
 
         <button
           type="button"
-          className="flex items-center gap-2 rounded-lg border border-border px-2 py-1.5 text-sm transition-colors hover:bg-muted"
+          className="border-border hover:bg-muted flex items-center gap-2 rounded-lg border px-2 py-1.5 text-sm transition-colors"
           aria-label="Account menu"
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-action-subtle text-sm font-medium text-action">
+          <span className="bg-action-subtle text-action flex size-8 items-center justify-center rounded-full text-sm font-medium">
             {getInitial(user.name)}
           </span>
-          <ChevronDown className="size-4 text-muted-foreground" aria-hidden />
+          <ChevronDown className="text-muted-foreground size-4" aria-hidden />
         </button>
       </div>
     </header>

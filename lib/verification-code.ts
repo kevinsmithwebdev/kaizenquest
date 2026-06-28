@@ -15,5 +15,7 @@ export function normalizeVerificationCode(input: string): string {
 }
 
 export function hashVerificationCode(code: string): string {
-  return createHash("sha256").update(normalizeVerificationCode(code)).digest("hex");
+  return createHash("sha256")
+    .update(normalizeVerificationCode(code))
+    .digest("hex");
 }

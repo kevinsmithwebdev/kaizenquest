@@ -12,30 +12,36 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="flex min-h-full flex-col items-center justify-center bg-background px-6 py-16">
+    <div className="bg-background flex min-h-full flex-col items-center justify-center px-6 py-16">
       <main className="flex w-full max-w-lg flex-col items-center text-center">
-        <div className="mb-8 flex size-16 items-center justify-center rounded-2xl bg-brand text-brand-foreground">
+        <div className="bg-brand text-brand-foreground mb-8 flex size-16 items-center justify-center rounded-2xl">
           <Compass className="size-9" aria-hidden />
         </div>
 
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+        <h1 className="text-foreground text-3xl font-semibold tracking-tight sm:text-4xl">
           Kaizen Quest
         </h1>
 
-        <p className="mt-4 text-lg leading-relaxed text-muted-foreground">
+        <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
           Create an account with your email, no credit card required.
         </p>
 
         <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/sign-up"
-            className={cn(buttonVariants({ variant: "brand", size: "lg" }), "h-11 px-6")}
+            className={cn(
+              buttonVariants({ variant: "brand", size: "lg" }),
+              "h-11 px-6",
+            )}
           >
             Create account
           </Link>
           <Link
             href="/sign-in"
-            className={cn(buttonVariants({ variant: "outline", size: "lg" }), "h-11 px-6")}
+            className={cn(
+              buttonVariants({ variant: "outline", size: "lg" }),
+              "h-11 px-6",
+            )}
           >
             Sign in
           </Link>
