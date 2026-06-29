@@ -1,12 +1,22 @@
 import { z } from "zod";
 
 import { GOAL_PERIODS, GOAL_TYPES } from "./goal.constants";
+import type { GoalType } from "./goal.types";
 import { iso8601DurationSchema } from "./iso-duration";
 
 const goalPeriodSchema = z.enum(GOAL_PERIODS);
-const goalTypeSchema = z.enum(GOAL_TYPES);
 
-const positiveIntSchema = z.number().int().positive();
+export const positiveIntSchema = z.number().int().positive();
+
+export const goalIdSchema = z.string().trim().min(1, "Goal ID is required");
+
+export const updateGoalSchema = z.object({
+  id: goalIdSchema,
+  name: z.string().trim().min(1, "Name is required"),
+  description: z.string().trim().default(""),
+  period: goalPeriodSchema,
+  target: z.union([positiveIntSchema, iso8601DurationSchema]),
+});
 
 export const goalEventSchema = z.discriminatedUnion("type", [
   z.object({
@@ -39,4 +49,13 @@ export const createGoalSchema = z.discriminatedUnion("type", [
 ]);
 
 export type CreateGoalInput = z.infer<typeof createGoalSchema>;
+export type UpdateGoalInput = z.infer<typeof updateGoalSchema>;
 export type GoalEventInput = z.infer<typeof goalEventSchema>;
+
+export const validateGoalTarget = (type: GoalType, target: unknown) => {
+  if (type === "OCCURANCE") {
+    return positiveIntSchema.safeParse(target);
+  }
+
+  return iso8601DurationSchema.safeParse(target);
+};

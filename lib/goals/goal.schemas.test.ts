@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { createGoalSchema, goalEventSchema } from "./goal.schemas";
+import {
+  createGoalSchema,
+  goalEventSchema,
+  updateGoalSchema,
+} from "./goal.schemas";
 import { isIso8601Duration } from "./iso-duration";
 
 describe("isIso8601Duration", () => {
@@ -75,6 +79,44 @@ describe("createGoalSchema", () => {
       period: "WEEK",
       type: "OCCURANCE",
       target: 3,
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("updateGoalSchema", () => {
+  it("accepts valid update input with an integer target", () => {
+    const result = updateGoalSchema.safeParse({
+      id: "goal-1",
+      name: "Meditate",
+      description: "Updated",
+      period: "WEEK",
+      target: 7,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts valid update input with a duration target", () => {
+    const result = updateGoalSchema.safeParse({
+      id: "goal-1",
+      name: "Read",
+      description: "",
+      period: "MONTH",
+      target: "PT2H",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects update input without an id", () => {
+    const result = updateGoalSchema.safeParse({
+      id: "   ",
+      name: "Read",
+      description: "",
+      period: "MONTH",
+      target: "PT2H",
     });
 
     expect(result.success).toBe(false);
