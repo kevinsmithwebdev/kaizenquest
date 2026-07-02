@@ -1,13 +1,15 @@
 import { GoalsList } from "@/components/goals";
-import { CalendarCard, StreakCard } from "@/components/widgets";
+import { CalendarCard, QuoteCard, StreakCard } from "@/components/widgets";
 import { getCurrentUser } from "@/lib/auth";
 import { listGoalsForUser } from "@/lib/goals";
+import { pickRandomQuote } from "@/lib/quotes";
 import { computeUserStreak } from "@/lib/streak";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
   const goals = user ? await listGoalsForUser(user.id) : [];
   const streak = computeUserStreak(goals);
+  const quote = pickRandomQuote();
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-6">
@@ -19,6 +21,7 @@ export default async function DashboardPage() {
         <aside className="flex flex-col gap-4">
           <StreakCard streak={streak} />
           <CalendarCard goals={goals} />
+          <QuoteCard quote={quote.quote} source={quote.source} />
         </aside>
       </div>
     </div>
