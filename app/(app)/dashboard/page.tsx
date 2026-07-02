@@ -1,5 +1,5 @@
 import { GoalsList } from "@/components/goals";
-import { StreakCard } from "@/components/widgets";
+import { CalendarCard, StreakCard } from "@/components/widgets";
 import { getCurrentUser } from "@/lib/auth";
 import { listGoalsForUser } from "@/lib/goals";
 import { computeUserStreak } from "@/lib/streak";
@@ -18,6 +18,7 @@ export default async function DashboardPage() {
         <GoalsList goals={goals} />
         <aside className="flex flex-col gap-4">
           <StreakCard streak={streak} />
+          <CalendarCard goals={goals} />
         </aside>
       </div>
     </div>
