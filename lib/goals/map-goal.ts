@@ -4,6 +4,7 @@ import type {
 } from "@/lib/generated/prisma/client";
 
 import type { Goal, GoalEvent } from "./goal.types";
+import { normalizeGoalCategory } from "./goal-categories";
 
 const mapGoalEventFromPrisma = (event: PrismaGoalEvent): GoalEvent => {
   if (event.type === "OCCURANCE") {
@@ -43,6 +44,7 @@ export const mapGoalFromPrisma = (
     userId: goal.userId,
     name: goal.name,
     description: goal.description,
+    category: normalizeGoalCategory(goal.category),
     period: goal.period,
     createdAt: goal.createdAt,
     updatedAt: goal.updatedAt,

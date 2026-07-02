@@ -1,10 +1,12 @@
 import { z } from "zod";
 
+import { GOAL_CATEGORIES } from "./goal-categories";
 import { GOAL_PERIODS, GOAL_TYPES } from "./goal.constants";
 import type { GoalType } from "./goal.types";
 import { iso8601DurationSchema } from "./iso-duration";
 
 const goalPeriodSchema = z.enum(GOAL_PERIODS);
+const goalCategorySchema = z.enum(GOAL_CATEGORIES).nullable();
 
 export const positiveIntSchema = z.number().int().positive();
 
@@ -14,6 +16,7 @@ export const updateGoalSchema = z.object({
   id: goalIdSchema,
   name: z.string().trim().min(1, "Name is required"),
   description: z.string().trim().default(""),
+  category: goalCategorySchema.optional(),
   period: goalPeriodSchema,
   target: z.union([positiveIntSchema, iso8601DurationSchema]),
 });
@@ -35,6 +38,7 @@ export const createGoalSchema = z.discriminatedUnion("type", [
   z.object({
     name: z.string().trim().min(1, "Name is required"),
     description: z.string().trim().default(""),
+    category: goalCategorySchema.optional(),
     period: goalPeriodSchema,
     type: z.literal("OCCURANCE"),
     target: positiveIntSchema,
@@ -42,6 +46,7 @@ export const createGoalSchema = z.discriminatedUnion("type", [
   z.object({
     name: z.string().trim().min(1, "Name is required"),
     description: z.string().trim().default(""),
+    category: goalCategorySchema.optional(),
     period: goalPeriodSchema,
     type: z.literal("TIME"),
     target: iso8601DurationSchema,

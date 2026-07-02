@@ -39,7 +39,7 @@ export const kaizenPalette = {
   },
 } as const;
 
-/** Goal category colors for charts, rings, and badges. */
+/** @deprecated Use goal category colors from `@/lib/goals/goal-categories`. */
 export const goalCategoryColors = {
   workout: kaizenPalette.success.DEFAULT,
   read: kaizenPalette.action.DEFAULT,

@@ -44,6 +44,7 @@ model Goal {
   type              GoalType
   targetOccurrences Int?
   targetDuration    String?
+  category          String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
   events            GoalEvent[]

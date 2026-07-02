@@ -24,6 +24,7 @@ const prismaOccuranceGoal = {
   type: "OCCURANCE" as const,
   targetOccurrences: 5,
   targetDuration: null,
+  category: null,
   createdAt: new Date("2026-06-29T00:00:00.000Z"),
   updatedAt: new Date("2026-06-29T00:00:00.000Z"),
   events: [

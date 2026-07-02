@@ -11,6 +11,7 @@ export const toPrismaGoalCreateData = (
     user: { connect: { id: userId } },
     name: input.name,
     description: input.description,
+    category: input.category ?? null,
     period: input.period,
     type: input.type,
   };
@@ -37,6 +38,7 @@ export const toPrismaGoalUpdateData = (
   const base = {
     name: input.name,
     description: input.description,
+    ...(input.category !== undefined ? { category: input.category } : {}),
     period: input.period,
   };
 

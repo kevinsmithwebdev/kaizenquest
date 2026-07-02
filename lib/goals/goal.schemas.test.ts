@@ -24,6 +24,71 @@ describe("isIso8601Duration", () => {
 });
 
 describe("createGoalSchema", () => {
+  it("accepts a learning category", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Read",
+      description: "",
+      category: "learning",
+      period: "MONTH",
+      type: "OCCURANCE",
+      target: 2,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects a legacy category slug", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Run",
+      description: "",
+      category: "fitness",
+      period: "WEEK",
+      type: "OCCURANCE",
+      target: 3,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts an OCCURANCE goal with a category", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Meditate",
+      description: "Daily practice",
+      category: "spiritual",
+      period: "WEEK",
+      type: "OCCURANCE",
+      target: 5,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an invalid category", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Meditate",
+      description: "",
+      category: "invalid",
+      period: "WEEK",
+      type: "OCCURANCE",
+      target: 5,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts a null category", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Meditate",
+      description: "",
+      category: null,
+      period: "WEEK",
+      type: "OCCURANCE",
+      target: 5,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("accepts an OCCURANCE goal", () => {
     const result = createGoalSchema.safeParse({
       name: "Meditate",

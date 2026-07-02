@@ -37,6 +37,7 @@ const prismaOccuranceGoal = {
   type: "OCCURANCE" as const,
   targetOccurrences: 5,
   targetDuration: null,
+  category: null,
   createdAt: new Date("2026-06-29T00:00:00.000Z"),
   updatedAt: new Date("2026-06-29T00:00:00.000Z"),
 };
@@ -94,6 +95,7 @@ describe("createGoal", () => {
         user: { connect: { id: "user-1" } },
         name: "Meditate",
         description: "Daily practice",
+        category: null,
         period: "WEEK",
         type: "OCCURANCE",
         targetOccurrences: 5,
@@ -132,6 +134,7 @@ describe("createGoal", () => {
         user: { connect: { id: "user-1" } },
         name: "Read",
         description: "",
+        category: null,
         period: "MONTH",
         type: "TIME",
         targetOccurrences: null,

@@ -1,3 +1,4 @@
+import type { GoalCategory } from "./goal-categories";
 import type { GOAL_PERIODS, GOAL_TYPES } from "./goal.constants";
 
 export type GoalPeriod = (typeof GOAL_PERIODS)[number];
@@ -12,6 +13,7 @@ type GoalBase = {
   userId: string;
   name: string;
   description: string;
+  category: GoalCategory | null;
   period: GoalPeriod;
   createdAt: Date;
   updatedAt: Date;
