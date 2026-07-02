@@ -19,7 +19,7 @@ export function GoalsList({ goals }: GoalsListProps) {
             No goals yet. Add one to get started.
           </p>
         ) : (
-          <ul>
+          <ul className="grid grid-cols-[2.5rem_minmax(0,1fr)_0_8.5rem_1.75rem] gap-x-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_5.5rem_8.5rem_1.75rem]">
             {goals.map((goal, index) => (
               <GoalListItem key={goal.id} goal={goal} colorIndex={index} />
             ))}

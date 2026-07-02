@@ -10,6 +10,8 @@ const goalCategorySchema = z.enum(GOAL_CATEGORIES).nullable();
 
 export const positiveIntSchema = z.number().int().positive();
 
+export const positiveFloatSchema = z.number().positive();
+
 export const goalIdSchema = z.string().trim().min(1, "Goal ID is required");
 
 export const updateGoalSchema = z.object({
@@ -18,7 +20,11 @@ export const updateGoalSchema = z.object({
   description: z.string().trim().default(""),
   category: goalCategorySchema.optional(),
   period: goalPeriodSchema,
-  target: z.union([positiveIntSchema, iso8601DurationSchema]),
+  target: z.union([
+    positiveIntSchema,
+    iso8601DurationSchema,
+    positiveFloatSchema,
+  ]),
 });
 
 export const goalEventSchema = z.discriminatedUnion("type", [
@@ -30,6 +36,11 @@ export const goalEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("TIME"),
     duration: iso8601DurationSchema,
+    occurredAt: z.coerce.date(),
+  }),
+  z.object({
+    type: z.literal("AMOUNT"),
+    amount: positiveFloatSchema,
     occurredAt: z.coerce.date(),
   }),
 ]);
@@ -51,6 +62,14 @@ export const createGoalSchema = z.discriminatedUnion("type", [
     type: z.literal("TIME"),
     target: iso8601DurationSchema,
   }),
+  z.object({
+    name: z.string().trim().min(1, "Name is required"),
+    description: z.string().trim().default(""),
+    category: goalCategorySchema.optional(),
+    period: goalPeriodSchema,
+    type: z.literal("AMOUNT"),
+    target: positiveFloatSchema,
+  }),
 ]);
 
 export type CreateGoalInput = z.infer<typeof createGoalSchema>;
@@ -62,5 +81,9 @@ export const validateGoalTarget = (type: GoalType, target: unknown) => {
     return positiveIntSchema.safeParse(target);
   }
 
-  return iso8601DurationSchema.safeParse(target);
+  if (type === "TIME") {
+    return iso8601DurationSchema.safeParse(target);
+  }
+
+  return positiveFloatSchema.safeParse(target);
 };

@@ -6,7 +6,8 @@ export type GoalType = (typeof GOAL_TYPES)[number];
 
 export type GoalEvent =
   | { id: string; type: "OCCURANCE"; occurrences: number; occurredAt: Date }
-  | { id: string; type: "TIME"; duration: string; occurredAt: Date };
+  | { id: string; type: "TIME"; duration: string; occurredAt: Date }
+  | { id: string; type: "AMOUNT"; amount: number; occurredAt: Date };
 
 type GoalBase = {
   id: string;
@@ -22,4 +23,5 @@ type GoalBase = {
 
 export type Goal =
   | (GoalBase & { type: "OCCURANCE"; target: number })
-  | (GoalBase & { type: "TIME"; target: string });
+  | (GoalBase & { type: "TIME"; target: string })
+  | (GoalBase & { type: "AMOUNT"; target: number });

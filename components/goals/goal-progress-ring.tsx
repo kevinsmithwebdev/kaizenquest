@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 type GoalProgressRingProps = {
-  value: number;
+  value: string | number;
   label: string;
   percent: number;
   color: string;
@@ -23,7 +23,7 @@ export function GoalProgressRing({
   const offset = CIRCUMFERENCE * (1 - percent / 100);
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex min-w-0 items-center gap-2", className)}>
       <div className="relative size-[52px] shrink-0">
         <svg
           width={SIZE}
@@ -53,11 +53,13 @@ export function GoalProgressRing({
             strokeDashoffset={offset}
           />
         </svg>
-        <span className="text-foreground absolute inset-0 flex items-center justify-center text-sm font-semibold">
+        <span className="text-foreground absolute inset-0 flex items-center justify-center text-sm font-semibold tabular-nums">
           {value}
         </span>
       </div>
-      <span className="text-muted-foreground text-sm">{label}</span>
+      <span className="text-muted-foreground min-w-0 truncate text-sm">
+        {label}
+      </span>
     </div>
   );
 }

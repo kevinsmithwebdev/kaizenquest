@@ -21,6 +21,7 @@ enum GoalPeriod {
 enum GoalType {
   OCCURANCE
   TIME
+  AMOUNT
 }
 
 model User {
@@ -45,6 +46,7 @@ model Goal {
   type              GoalType
   targetOccurrences Int?
   targetDuration    String?
+  targetAmount      Float?
   category          String?
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
@@ -60,6 +62,7 @@ model GoalEvent {
   type        GoalType
   occurrences Int?
   duration    String?
+  amount      Float?
   occurredAt  DateTime @default(now())
 
   @@index([goalId])

@@ -54,5 +54,17 @@ describe("getGoalTargetDisplay", () => {
       value: "2 hr",
       label: "this month",
     });
+
+    expect(
+      getGoalTargetDisplay({
+        ...weekOccuranceGoal,
+        period: "MONTH",
+        type: "AMOUNT",
+        target: 500,
+      }),
+    ).toEqual({
+      value: "500",
+      label: "this month",
+    });
   });
 });

@@ -41,6 +41,12 @@ export const formatOccurrenceCount = (count: number): string => {
   return count === 1 ? "1 time" : `${count} times`;
 };
 
+export const formatAmount = (amount: number): string => {
+  return Number.isInteger(amount)
+    ? amount.toString()
+    : parseFloat(amount.toFixed(4)).toString();
+};
+
 const getPeriodStart = (period: GoalPeriod, now = new Date()): Date => {
   const start = new Date(now);
   start.setHours(0, 0, 0, 0);
@@ -71,12 +77,16 @@ export const getGoalProgressInPeriod = (
         return total + event.occurrences;
       }
 
-      return total + parseIso8601DurationToMinutes(event.duration);
+      if (event.type === "TIME") {
+        return total + parseIso8601DurationToMinutes(event.duration);
+      }
+
+      return total + event.amount;
     }, 0);
 };
 
 export const getGoalTargetValue = (goal: Goal): number => {
-  if (goal.type === "OCCURANCE") {
+  if (goal.type === "OCCURANCE" || goal.type === "AMOUNT") {
     return goal.target;
   }
 

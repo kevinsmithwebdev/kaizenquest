@@ -128,6 +128,7 @@ async function main() {
         type: createInput.type,
         targetOccurrences: createInput.targetOccurrences ?? null,
         targetDuration: createInput.targetDuration ?? null,
+        targetAmount: createInput.targetAmount ?? null,
       };
     }),
   });

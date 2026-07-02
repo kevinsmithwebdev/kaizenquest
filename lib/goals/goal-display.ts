@@ -1,5 +1,6 @@
 import type { Goal, GoalPeriod } from "./goal.types";
 import {
+  formatAmount,
   formatMinutesAsGoalDuration,
   formatOccurrenceCount,
   getGoalProgressInPeriod,
@@ -32,10 +33,17 @@ export const getGoalTargetDisplay = (goal: Goal): GoalTargetDisplay => {
     };
   }
 
+  if (goal.type === "TIME") {
+    return {
+      value: formatMinutesAsGoalDuration(
+        parseIso8601DurationToMinutes(goal.target),
+      ),
+      label,
+    };
+  }
+
   return {
-    value: formatMinutesAsGoalDuration(
-      parseIso8601DurationToMinutes(goal.target),
-    ),
+    value: formatAmount(goal.target),
     label,
   };
 };
@@ -53,9 +61,18 @@ export const getGoalProgressDisplay = (goal: Goal, now = new Date()) => {
     };
   }
 
+  if (goal.type === "TIME") {
+    return {
+      current: String(progress),
+      suffix: `/ ${formatMinutesAsGoalDuration(parseIso8601DurationToMinutes(goal.target))}`,
+      percent:
+        targetValue > 0 ? Math.min(100, (progress / targetValue) * 100) : 0,
+    };
+  }
+
   return {
-    current: String(progress),
-    suffix: `/ ${formatMinutesAsGoalDuration(parseIso8601DurationToMinutes(goal.target))}`,
+    current: formatAmount(progress),
+    suffix: `/ ${formatAmount(goal.target)}`,
     percent:
       targetValue > 0 ? Math.min(100, (progress / targetValue) * 100) : 0,
   };

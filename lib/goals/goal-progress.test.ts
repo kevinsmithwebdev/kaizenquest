@@ -58,4 +58,29 @@ describe("getGoalProgressInPeriod", () => {
       ),
     ).toBe(true);
   });
+
+  it("sums AMOUNT events in the current period", () => {
+    const amountGoal: Goal = {
+      ...dayGoal,
+      type: "AMOUNT",
+      target: 100,
+      history: [
+        {
+          id: "event-1",
+          type: "AMOUNT",
+          amount: 25.5,
+          occurredAt: new Date("2026-06-29T08:00:00.000Z"),
+        },
+        {
+          id: "event-2",
+          type: "AMOUNT",
+          amount: 10,
+          occurredAt: new Date("2026-06-28T20:00:00.000Z"),
+        },
+      ],
+    };
+    const now = new Date("2026-06-29T12:00:00.000Z");
+
+    expect(getGoalProgressInPeriod(amountGoal, now)).toBe(25.5);
+  });
 });

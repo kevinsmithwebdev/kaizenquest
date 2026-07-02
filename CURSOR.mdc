@@ -50,9 +50,9 @@ Feedback: Adapt suggestions based on user feedback, tracked in status.md or code
 
 We are building a Kaizen app, that will help users track their progress towards goals.
 
-A user can create a goal. They can set a path - how they want to get there. They can set how many times they want to perform something, or how much time they want to apply, by day or week. So, goals can be step or time based.
+A user can create a goal. They can set a path - how they want to get there. They can set how many times they want to perform something, how much time they want to apply, or a numeric amount to reach (e.g. savings), by day, week, or month. So, goals can be occurrence, time, or amount based.
 
-The user can click a button to tell the app that they have either taken a step or put in some time (whichever applies). The app will keep track of these tasks and report to the user their progress.
+The user can click a button to tell the app that they have either taken a step, put in some time, or logged an amount (whichever applies). The app will keep track of these tasks and report to the user their progress.
 
 We have basic designs for light mode and dark mode at:
 
@@ -64,3 +64,5 @@ In the beginning we will start with light mode and do dark mode later.
 We will build a Next.js app, with Tailwind CSS and shadcn/ui for components. For the backend, we will use Prisma and Postgress and express.
 
 I am an experienced React developer, but have less experience with Next.js, Tailwind, shadcn/ui, Prisma, and Postgres. I will want AI experience, but I want cursor to stop and ask before adding things so I can learn and understand what it is doing. We will use i18next for all UI text - we will start with English only as the source of truth.
+
+We use yarn in this project.

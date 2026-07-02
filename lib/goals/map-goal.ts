@@ -22,14 +22,27 @@ const mapGoalEventFromPrisma = (event: PrismaGoalEvent): GoalEvent => {
     };
   }
 
-  if (event.duration === null) {
-    throw new Error(`Goal event ${event.id} is TIME but has no duration`);
+  if (event.type === "TIME") {
+    if (event.duration === null) {
+      throw new Error(`Goal event ${event.id} is TIME but has no duration`);
+    }
+
+    return {
+      id: event.id,
+      type: "TIME",
+      duration: event.duration,
+      occurredAt: event.occurredAt,
+    };
+  }
+
+  if (event.amount === null) {
+    throw new Error(`Goal event ${event.id} is AMOUNT but has no amount`);
   }
 
   return {
     id: event.id,
-    type: "TIME",
-    duration: event.duration,
+    type: "AMOUNT",
+    amount: event.amount,
     occurredAt: event.occurredAt,
   };
 };
@@ -65,13 +78,25 @@ export const mapGoalFromPrisma = (
     };
   }
 
-  if (goal.targetDuration === null) {
-    throw new Error(`Goal ${goal.id} is TIME but has no targetDuration`);
+  if (goal.type === "TIME") {
+    if (goal.targetDuration === null) {
+      throw new Error(`Goal ${goal.id} is TIME but has no targetDuration`);
+    }
+
+    return {
+      ...base,
+      type: "TIME",
+      target: goal.targetDuration,
+    };
+  }
+
+  if (goal.targetAmount === null) {
+    throw new Error(`Goal ${goal.id} is AMOUNT but has no targetAmount`);
   }
 
   return {
     ...base,
-    type: "TIME",
-    target: goal.targetDuration,
+    type: "AMOUNT",
+    target: goal.targetAmount,
   };
 };

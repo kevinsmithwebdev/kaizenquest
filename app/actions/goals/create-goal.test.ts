@@ -37,6 +37,7 @@ const prismaOccuranceGoal = {
   type: "OCCURANCE" as const,
   targetOccurrences: 5,
   targetDuration: null,
+  targetAmount: null,
   category: null,
   createdAt: new Date("2026-06-29T00:00:00.000Z"),
   updatedAt: new Date("2026-06-29T00:00:00.000Z"),
@@ -100,6 +101,7 @@ describe("createGoal", () => {
         type: "OCCURANCE",
         targetOccurrences: 5,
         targetDuration: null,
+        targetAmount: null,
       },
     });
     expect(result.error).toBeNull();
@@ -119,6 +121,7 @@ describe("createGoal", () => {
       type: "TIME",
       targetOccurrences: null,
       targetDuration: "PT2H",
+      targetAmount: null,
     });
 
     const result = await createGoal({
@@ -139,6 +142,7 @@ describe("createGoal", () => {
         type: "TIME",
         targetOccurrences: null,
         targetDuration: "PT2H",
+        targetAmount: null,
       },
     });
     expect(result.error).toBeNull();

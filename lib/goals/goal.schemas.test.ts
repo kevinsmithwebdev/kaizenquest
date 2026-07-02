@@ -125,6 +125,30 @@ describe("createGoalSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts an AMOUNT goal", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Save",
+      description: "",
+      period: "MONTH",
+      type: "AMOUNT",
+      target: 500.5,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an AMOUNT goal with a non-positive target", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Save",
+      description: "",
+      period: "MONTH",
+      type: "AMOUNT",
+      target: 0,
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it("rejects a TIME goal with an invalid duration", () => {
     const result = createGoalSchema.safeParse({
       name: "Read",
@@ -187,6 +211,18 @@ describe("updateGoalSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("accepts valid update input with a float target", () => {
+    const result = updateGoalSchema.safeParse({
+      id: "goal-1",
+      name: "Save",
+      description: "",
+      period: "MONTH",
+      target: 250.75,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("rejects update input without an id", () => {
     const result = updateGoalSchema.safeParse({
       id: "   ",
@@ -218,6 +254,16 @@ describe("goalEventSchema", () => {
     const result = goalEventSchema.safeParse({
       type: "TIME",
       duration: "PT45M",
+      occurredAt: "2026-06-29T12:00:00.000Z",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts an AMOUNT event", () => {
+    const result = goalEventSchema.safeParse({
+      type: "AMOUNT",
+      amount: 12.5,
       occurredAt: "2026-06-29T12:00:00.000Z",
     });
 

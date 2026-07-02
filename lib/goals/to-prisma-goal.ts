@@ -21,13 +21,24 @@ export const toPrismaGoalCreateData = (
       ...base,
       targetOccurrences: input.target,
       targetDuration: null,
+      targetAmount: null,
+    };
+  }
+
+  if (input.type === "TIME") {
+    return {
+      ...base,
+      targetOccurrences: null,
+      targetDuration: input.target,
+      targetAmount: null,
     };
   }
 
   return {
     ...base,
     targetOccurrences: null,
-    targetDuration: input.target,
+    targetDuration: null,
+    targetAmount: input.target,
   };
 };
 
@@ -47,12 +58,23 @@ export const toPrismaGoalUpdateData = (
       ...base,
       targetOccurrences: input.target as number,
       targetDuration: null,
+      targetAmount: null,
+    };
+  }
+
+  if (type === "TIME") {
+    return {
+      ...base,
+      targetOccurrences: null,
+      targetDuration: input.target as string,
+      targetAmount: null,
     };
   }
 
   return {
     ...base,
     targetOccurrences: null,
-    targetDuration: input.target as string,
+    targetDuration: null,
+    targetAmount: input.target as number,
   };
 };
