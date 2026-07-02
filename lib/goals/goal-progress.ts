@@ -45,6 +45,10 @@ const getPeriodStart = (period: GoalPeriod, now = new Date()): Date => {
   const start = new Date(now);
   start.setHours(0, 0, 0, 0);
 
+  if (period === "DAY") {
+    return start;
+  }
+
   if (period === "WEEK") {
     const dayOffset = (start.getDay() + 6) % 7;
     start.setDate(start.getDate() - dayOffset);

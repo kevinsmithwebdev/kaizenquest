@@ -27,6 +27,7 @@ export {
 export type { Goal, GoalEvent, GoalPeriod, GoalType } from "./goal.types";
 export {
   getGoalAccentColor,
+  getGoalPeriodLabel,
   getGoalProgressDisplay,
   getGoalTargetDisplay,
 } from "./goal-display";

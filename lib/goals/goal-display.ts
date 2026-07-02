@@ -1,4 +1,4 @@
-import type { Goal } from "./goal.types";
+import type { Goal, GoalPeriod } from "./goal.types";
 import {
   formatMinutesAsGoalDuration,
   formatOccurrenceCount,
@@ -12,11 +12,23 @@ export type GoalTargetDisplay = {
   label: string;
 };
 
+const GOAL_PERIOD_LABELS: Record<GoalPeriod, string> = {
+  DAY: "today",
+  WEEK: "this week",
+  MONTH: "this month",
+};
+
+export const getGoalPeriodLabel = (period: GoalPeriod): string => {
+  return GOAL_PERIOD_LABELS[period];
+};
+
 export const getGoalTargetDisplay = (goal: Goal): GoalTargetDisplay => {
+  const label = getGoalPeriodLabel(goal.period);
+
   if (goal.type === "OCCURANCE") {
     return {
       value: formatOccurrenceCount(goal.target),
-      label: "occurrences",
+      label,
     };
   }
 
@@ -24,7 +36,7 @@ export const getGoalTargetDisplay = (goal: Goal): GoalTargetDisplay => {
     value: formatMinutesAsGoalDuration(
       parseIso8601DurationToMinutes(goal.target),
     ),
-    label: "time",
+    label,
   };
 };
 

@@ -24,6 +24,18 @@ describe("isIso8601Duration", () => {
 });
 
 describe("createGoalSchema", () => {
+  it("accepts a DAY goal", () => {
+    const result = createGoalSchema.safeParse({
+      name: "Meditate",
+      description: "",
+      period: "DAY",
+      type: "OCCURANCE",
+      target: 1,
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("accepts a learning category", () => {
     const result = createGoalSchema.safeParse({
       name: "Read",
