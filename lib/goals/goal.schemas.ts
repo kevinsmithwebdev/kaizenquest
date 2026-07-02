@@ -45,6 +45,12 @@ export const goalEventSchema = z.discriminatedUnion("type", [
   }),
 ]);
 
+export const addGoalEventSchema = z
+  .object({
+    goalId: goalIdSchema,
+  })
+  .and(goalEventSchema);
+
 export const createGoalSchema = z.discriminatedUnion("type", [
   z.object({
     name: z.string().trim().min(1, "Name is required"),
@@ -75,6 +81,7 @@ export const createGoalSchema = z.discriminatedUnion("type", [
 export type CreateGoalInput = z.infer<typeof createGoalSchema>;
 export type UpdateGoalInput = z.infer<typeof updateGoalSchema>;
 export type GoalEventInput = z.infer<typeof goalEventSchema>;
+export type AddGoalEventInput = z.infer<typeof addGoalEventSchema>;
 
 export const validateGoalTarget = (type: GoalType, target: unknown) => {
   if (type === "OCCURANCE") {

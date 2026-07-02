@@ -1,6 +1,10 @@
 import type { Prisma } from "@/lib/generated/prisma/client";
 
-import type { CreateGoalInput, UpdateGoalInput } from "./goal.schemas";
+import type {
+  CreateGoalInput,
+  GoalEventInput,
+  UpdateGoalInput,
+} from "./goal.schemas";
 import type { GoalType } from "./goal.types";
 
 export const toPrismaGoalCreateData = (
@@ -76,5 +80,41 @@ export const toPrismaGoalUpdateData = (
     targetOccurrences: null,
     targetDuration: null,
     targetAmount: input.target as number,
+  };
+};
+
+export const toPrismaGoalEventCreateData = (
+  goalId: string,
+  input: GoalEventInput,
+): Prisma.GoalEventCreateInput => {
+  const base = {
+    goal: { connect: { id: goalId } },
+    type: input.type,
+    occurredAt: input.occurredAt,
+  };
+
+  if (input.type === "OCCURANCE") {
+    return {
+      ...base,
+      occurrences: input.occurrences,
+      duration: null,
+      amount: null,
+    };
+  }
+
+  if (input.type === "TIME") {
+    return {
+      ...base,
+      occurrences: null,
+      duration: input.duration,
+      amount: null,
+    };
+  }
+
+  return {
+    ...base,
+    occurrences: null,
+    duration: null,
+    amount: input.amount,
   };
 };

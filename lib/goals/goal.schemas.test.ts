@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  addGoalEventSchema,
   createGoalSchema,
   goalEventSchema,
   updateGoalSchema,
@@ -274,6 +275,29 @@ describe("goalEventSchema", () => {
     const result = goalEventSchema.safeParse({
       type: "TIME",
       duration: "45 minutes",
+      occurredAt: "2026-06-29T12:00:00.000Z",
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("addGoalEventSchema", () => {
+  it("accepts a valid OCCURANCE event with goalId", () => {
+    const result = addGoalEventSchema.safeParse({
+      goalId: "goal-1",
+      type: "OCCURANCE",
+      occurrences: 2,
+      occurredAt: "2026-06-29T12:00:00.000Z",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects events without a goalId", () => {
+    const result = addGoalEventSchema.safeParse({
+      type: "OCCURANCE",
+      occurrences: 2,
       occurredAt: "2026-06-29T12:00:00.000Z",
     });
 

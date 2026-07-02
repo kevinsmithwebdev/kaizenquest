@@ -16,10 +16,12 @@ export {
 export {
   createGoalSchema,
   goalEventSchema,
+  addGoalEventSchema,
   goalIdSchema,
   positiveIntSchema,
   updateGoalSchema,
   validateGoalTarget,
+  type AddGoalEventInput,
   type CreateGoalInput,
   type GoalEventInput,
   type UpdateGoalInput,
@@ -46,5 +48,20 @@ export { getGoalForUser, listGoalsForUser } from "./queries";
 export { requireCurrentUser } from "./require-current-user";
 export {
   toPrismaGoalCreateData,
+  toPrismaGoalEventCreateData,
   toPrismaGoalUpdateData,
 } from "./to-prisma-goal";
+export {
+  clampAmount,
+  clampHours,
+  clampMinutes,
+  clampOccurrences,
+  formatAdjustedTimeDisplay,
+  getAdjustedTimeParts,
+  getTotalMinutes,
+  isPositiveAmountValue,
+  isPositiveOccurrenceValue,
+  isPositiveTimeValue,
+  minutesToIso8601Duration,
+  roundAmountToThirdDecimal,
+} from "./goal-event-input";
