@@ -28,7 +28,7 @@ export {
 } from "./goal.schemas";
 export type { Goal, GoalEvent, GoalPeriod, GoalType } from "./goal.types";
 export {
-  getGoalAccentColor,
+  getGoalProgressColor,
   getGoalPeriodLabel,
   getGoalProgressDisplay,
   getGoalTargetDisplay,

@@ -12,19 +12,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { NumberStepperInput } from "@/components/ui/number-stepper-input";
 import {
   getGoalCategoryColors,
   getGoalCategoryIcon,
 } from "@/lib/goals/goal-categories";
 import {
-  clampAmount,
-  clampHours,
-  clampMinutes,
   clampOccurrences,
-  formatAdjustedTimeDisplay,
   isPositiveAmountValue,
   isPositiveOccurrenceValue,
   isPositiveTimeValue,
@@ -32,6 +25,8 @@ import {
   roundAmountToThirdDecimal,
 } from "@/lib/goals/goal-event-input";
 import type { Goal } from "@/lib/goals/goal.types";
+
+import { GoalValueFields } from "./goal-value-fields";
 
 type AddEventDialogProps = {
   goal: Goal | null;
@@ -42,12 +37,6 @@ type AddEventDialogProps = {
 type AddEventFormProps = {
   goal: Goal;
   onClose: () => void;
-};
-
-const sanitizeAmountInput = (value: string): string => {
-  const cleaned = value.replace(/[^\d.]/g, "");
-  const [whole = "", ...fraction] = cleaned.split(".");
-  return fraction.length > 0 ? `${whole}.${fraction.join("")}` : whole;
 };
 
 function getEventFormDescription(goal: Goal): ReactNode {
@@ -195,77 +184,21 @@ function AddEventForm({ goal, onClose }: Readonly<AddEventFormProps>) {
       <div className="grid gap-4">
         <EventFormDescription goal={goal} />
 
-        {goal.type === "OCCURANCE" ? (
-          <div className="grid gap-2">
-            <Label htmlFor="occurrences">Occurrences</Label>
-            <NumberStepperInput
-              id="occurrences"
-              aria-label="occurrences"
-              value={occurrences}
-              onChange={setOccurrences}
-              min={1}
-              max={1000}
-              onBlurClamp={clampOccurrences}
-            />
-          </div>
-        ) : null}
-
-        {goal.type === "TIME" ? (
-          <div className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="hours">Hours</Label>
-              <NumberStepperInput
-                id="hours"
-                aria-label="hours"
-                value={hours}
-                onChange={setHours}
-                min={0}
-                max={100}
-                onBlurClamp={clampHours}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="minutes">Minutes</Label>
-              <NumberStepperInput
-                id="minutes"
-                aria-label="minutes"
-                value={minutes}
-                onChange={setMinutes}
-                min={0}
-                max={1000}
-                onBlurClamp={clampMinutes}
-              />
-            </div>
-
-            <p className="text-muted-foreground text-sm">
-              Adjusted: {formatAdjustedTimeDisplay(hoursValue, minutesValue)}
-            </p>
-          </div>
-        ) : null}
-
-        {goal.type === "AMOUNT" ? (
-          <div className="grid gap-2">
-            <Label htmlFor="amount">Amount</Label>
-            <Input
-              id="amount"
-              inputMode="decimal"
-              aria-label="amount"
-              value={amount}
-              onChange={(event) =>
-                setAmount(sanitizeAmountInput(event.target.value))
-              }
-              onBlur={() => {
-                if (amount === "" || amount === ".") {
-                  return;
-                }
-
-                setAmount(String(clampAmount(Number(amount))));
-              }}
-              className="tabular-nums"
-            />
-          </div>
-        ) : null}
+        <GoalValueFields
+          goalType={goal.type}
+          idPrefix=""
+          purpose="event"
+          occurrences={occurrences}
+          hours={hours}
+          minutes={minutes}
+          amount={amount}
+          onOccurrencesChange={setOccurrences}
+          onHoursChange={setHours}
+          onMinutesChange={setMinutes}
+          onAmountChange={setAmount}
+          hoursValue={hoursValue}
+          minutesValue={minutesValue}
+        />
 
         {error ? <p className="text-destructive text-sm">{error}</p> : null}
       </div>

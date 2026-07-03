@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useHoldRepeat } from "@/hooks/use-hold-repeat";
 import { cn } from "@/lib/utils";
 
 type NumberStepperInputProps = {
@@ -17,6 +18,7 @@ type NumberStepperInputProps = {
   id?: string;
   className?: string;
   "aria-label"?: string;
+  "aria-invalid"?: boolean;
 };
 
 const sanitizeNumericInput = (value: string, allowDecimal: boolean): string => {
@@ -47,17 +49,23 @@ export function NumberStepperInput({
   id,
   className,
   "aria-label": ariaLabel,
+  "aria-invalid": ariaInvalid,
 }: Readonly<NumberStepperInputProps>) {
   const numericValue = parseNumericValue(value);
   const hasNumericValue = Number.isFinite(numericValue);
   const effectiveValue = hasNumericValue ? numericValue : min;
   const canDecrement = hasNumericValue ? effectiveValue > min : false;
   const canIncrement = hasNumericValue ? effectiveValue < max : true;
+  const step = allowDecimal ? 0.1 : 1;
 
-  const applyClampedValue = (nextValue: number) => {
-    const clamped = onBlurClamp ? onBlurClamp(nextValue) : nextValue;
-    onChange(String(clamped));
-  };
+  const applyClampedValue = React.useCallback(
+    (nextValue: number) => {
+      const clamped = onBlurClamp ? onBlurClamp(nextValue) : nextValue;
+      const bounded = Math.min(max, Math.max(min, clamped));
+      onChange(String(bounded));
+    },
+    [max, min, onBlurClamp, onChange],
+  );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(sanitizeNumericInput(event.target.value, allowDecimal));
@@ -72,15 +80,44 @@ export function NumberStepperInput({
     applyClampedValue(numericValue);
   };
 
-  const handleDecrement = () => {
-    const baseValue = hasNumericValue ? numericValue : min;
-    applyClampedValue(baseValue - (allowDecimal ? 0.1 : 1));
-  };
+  const handleDecrement = React.useCallback(() => {
+    if (!canDecrement) {
+      return;
+    }
 
-  const handleIncrement = () => {
     const baseValue = hasNumericValue ? numericValue : min;
-    applyClampedValue(baseValue + (allowDecimal ? 0.1 : 1));
-  };
+    applyClampedValue(baseValue - step);
+  }, [
+    applyClampedValue,
+    canDecrement,
+    hasNumericValue,
+    min,
+    numericValue,
+    step,
+  ]);
+
+  const handleIncrement = React.useCallback(() => {
+    if (!canIncrement) {
+      return;
+    }
+
+    const baseValue = hasNumericValue ? numericValue : min;
+    applyClampedValue(baseValue + step);
+  }, [
+    applyClampedValue,
+    canIncrement,
+    hasNumericValue,
+    min,
+    numericValue,
+    step,
+  ]);
+
+  const decrementRepeat = useHoldRepeat(handleDecrement, {
+    enabled: canDecrement,
+  });
+  const incrementRepeat = useHoldRepeat(handleIncrement, {
+    enabled: canIncrement,
+  });
 
   return (
     <div className={cn("flex items-center gap-1", className)}>
@@ -88,9 +125,9 @@ export function NumberStepperInput({
         type="button"
         variant="outline"
         size="icon-sm"
-        onClick={handleDecrement}
         disabled={!canDecrement}
         aria-label={`Decrease ${ariaLabel ?? "value"}`}
+        {...decrementRepeat}
       >
         <ChevronDown />
       </Button>
@@ -102,6 +139,7 @@ export function NumberStepperInput({
         onChange={handleChange}
         onBlur={handleBlur}
         aria-label={ariaLabel}
+        aria-invalid={ariaInvalid}
         className="text-center tabular-nums"
       />
 
@@ -109,9 +147,9 @@ export function NumberStepperInput({
         type="button"
         variant="outline"
         size="icon-sm"
-        onClick={handleIncrement}
         disabled={!canIncrement}
         aria-label={`Increase ${ariaLabel ?? "value"}`}
+        {...incrementRepeat}
       >
         <ChevronUp />
       </Button>

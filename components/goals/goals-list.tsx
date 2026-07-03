@@ -75,11 +75,10 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
             </p>
           ) : (
             <ul className="grid grid-cols-[2.5rem_minmax(0,1fr)_0_8.5rem_1.75rem_2rem] gap-x-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_5.5rem_8.5rem_1.75rem_2rem]">
-              {visibleGoals.map((goal, index) => (
+              {visibleGoals.map((goal) => (
                 <GoalListItem
                   key={goal.id}
                   goal={goal}
-                  colorIndex={index}
                   onSelect={() => setSelectedGoal(goal)}
                   onEdit={() => setEditingGoal(goal)}
                   onDelete={() => setDeletingGoal(goal)}

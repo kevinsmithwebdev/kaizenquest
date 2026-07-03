@@ -128,3 +128,9 @@ export const isPositiveTimeValue = (
 export const isPositiveAmountValue = (value: number): boolean => {
   return Number.isFinite(value) && value > AMOUNT_MIN && value <= AMOUNT_MAX;
 };
+
+export const sanitizeAmountInput = (value: string): string => {
+  const cleaned = value.replace(/[^\d.]/g, "");
+  const [whole = "", ...fraction] = cleaned.split(".");
+  return fraction.length > 0 ? `${whole}.${fraction.join("")}` : whole;
+};

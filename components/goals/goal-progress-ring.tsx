@@ -12,6 +12,7 @@ const SIZE = 52;
 const STROKE = 4;
 const RADIUS = (SIZE - STROKE) / 2;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const MIN_VISIBLE_PERCENT = 1;
 
 export function GoalProgressRing({
   value,
@@ -20,7 +21,8 @@ export function GoalProgressRing({
   color,
   className,
 }: Readonly<GoalProgressRingProps>) {
-  const offset = CIRCUMFERENCE * (1 - percent / 100);
+  const ringPercent = percent === 0 ? MIN_VISIBLE_PERCENT : percent;
+  const offset = CIRCUMFERENCE * (1 - ringPercent / 100);
 
   return (
     <div className={cn("flex min-w-0 items-center gap-2", className)}>

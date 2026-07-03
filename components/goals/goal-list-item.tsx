@@ -6,7 +6,7 @@ import {
   getGoalCategoryIcon,
 } from "@/lib/goals/goal-categories";
 import {
-  getGoalAccentColor,
+  getGoalProgressColor,
   getGoalProgressDisplay,
   getGoalTargetDisplay,
 } from "@/lib/goals/goal-display";
@@ -19,7 +19,6 @@ import { GoalProgressRing } from "./goal-progress-ring";
 
 type GoalListItemProps = {
   goal: Goal;
-  colorIndex: number;
   onSelect: () => void;
   onEdit: () => void;
   onDelete: () => void;
@@ -27,7 +26,6 @@ type GoalListItemProps = {
 
 export function GoalListItem({
   goal,
-  colorIndex,
   onSelect,
   onEdit,
   onDelete,
@@ -35,7 +33,7 @@ export function GoalListItem({
   const target = getGoalTargetDisplay(goal);
   const progress = getGoalProgressDisplay(goal);
   const met = isGoalMet(goal);
-  const accentColor = getGoalAccentColor(colorIndex);
+  const progressColor = getGoalProgressColor(progress.percent);
   const categoryColors = getGoalCategoryColors(goal.category);
   const categoryIcon = getGoalCategoryIcon(goal.category);
 
@@ -81,7 +79,7 @@ export function GoalListItem({
           value={progress.current}
           label={progress.suffix}
           percent={progress.percent}
-          color={accentColor}
+          color={progressColor}
         />
 
         <div

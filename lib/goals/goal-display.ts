@@ -78,16 +78,18 @@ export const getGoalProgressDisplay = (goal: Goal, now = new Date()) => {
   };
 };
 
-const goalAccentColors = [
-  "var(--chart-1)",
-  "var(--chart-2)",
-  "var(--chart-3)",
-  "var(--chart-4)",
-  "var(--chart-5)",
-] as const;
+export const getGoalProgressColor = (percent: number): string => {
+  if (percent >= 100) {
+    return "var(--success)";
+  }
 
-export const getGoalAccentColor = (index: number): string => {
-  return (
-    goalAccentColors[index % goalAccentColors.length] ?? goalAccentColors[0]
-  );
+  if (percent > 50) {
+    return "var(--energy)";
+  }
+
+  if (percent > 25) {
+    return "var(--brand)";
+  }
+
+  return "var(--destructive)";
 };

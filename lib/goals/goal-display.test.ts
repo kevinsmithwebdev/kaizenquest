@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { getGoalPeriodLabel, getGoalTargetDisplay } from "./goal-display";
+import {
+  getGoalPeriodLabel,
+  getGoalProgressColor,
+  getGoalTargetDisplay,
+} from "./goal-display";
 import type { Goal } from "./goal.types";
 
 const weekOccuranceGoal: Goal = {
@@ -66,5 +70,26 @@ describe("getGoalTargetDisplay", () => {
       value: "500",
       label: "this month",
     });
+  });
+});
+
+describe("getGoalProgressColor", () => {
+  it("returns red for 0-25% progress", () => {
+    expect(getGoalProgressColor(0)).toBe("var(--destructive)");
+    expect(getGoalProgressColor(25)).toBe("var(--destructive)");
+  });
+
+  it("returns orange for 25-50% progress", () => {
+    expect(getGoalProgressColor(26)).toBe("var(--brand)");
+    expect(getGoalProgressColor(50)).toBe("var(--brand)");
+  });
+
+  it("returns yellow for above 50% and below 100%", () => {
+    expect(getGoalProgressColor(51)).toBe("var(--energy)");
+    expect(getGoalProgressColor(99)).toBe("var(--energy)");
+  });
+
+  it("returns green at 100%", () => {
+    expect(getGoalProgressColor(100)).toBe("var(--success)");
   });
 });
