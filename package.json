@@ -14,6 +14,7 @@
     "test:coverage": "vitest run --coverage",
     "sonar": "sonar",
     "validate": "node scripts/validate.mjs",
+    "vercel:github-secrets": "node scripts/print-vercel-github-secrets.mjs",
     "postinstall": "prisma generate",
     "predev": "prisma generate",
     "db:migrate": "prisma migrate dev",

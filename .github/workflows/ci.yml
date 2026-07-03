@@ -48,6 +48,7 @@ jobs:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
 
     steps:
       - name: Checkout
@@ -59,16 +60,13 @@ jobs:
           node-version: 22
           cache: yarn
 
-      - name: Check Vercel secrets
+      - name: Check Vercel token
         run: |
-          missing=()
-          [ -z "$VERCEL_TOKEN" ] && missing+=("VERCEL_TOKEN")
-          [ -z "$VERCEL_ORG_ID" ] && missing+=("VERCEL_ORG_ID")
-          [ -z "$VERCEL_PROJECT_ID" ] && missing+=("VERCEL_PROJECT_ID")
-          if [ "${#missing[@]}" -gt 0 ]; then
-            echo "::error::Missing GitHub secrets: ${missing[*]}"
-            echo "VERCEL_TOKEN: https://vercel.com/account/tokens"
-            echo "VERCEL_ORG_ID / VERCEL_PROJECT_ID: run 'yarn vercel link' locally, then copy orgId and projectId from .vercel/project.json"
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::error::Missing VERCEL_TOKEN GitHub secret."
+            echo "1. Create a token: https://vercel.com/account/tokens"
+            echo "2. Add it here: https://github.com/kevinsmithwebdev/kaizenquest/settings/secrets/actions"
+            echo "   Name: VERCEL_TOKEN"
             exit 1
           fi
 
@@ -77,6 +75,15 @@ jobs:
 
       - name: Generate Prisma client
         run: yarn prisma generate
+
+      - name: Link Vercel project
+        if: ${{ secrets.VERCEL_ORG_ID == '' || secrets.VERCEL_PROJECT_ID == '' }}
+        run: |
+          args=(link --repo --yes)
+          if [ -n "$VERCEL_SCOPE" ]; then
+            args+=(--scope "$VERCEL_SCOPE")
+          fi
+          yarn vercel "${args[@]}"
 
       - name: Pull Vercel environment
         run: yarn vercel pull --yes --environment=production
