@@ -27,7 +27,7 @@ export function GoalsListHeader({
   onTogglePeriod,
   availablePeriods,
   showPeriodFilter,
-}: GoalsListHeaderProps) {
+}: Readonly<GoalsListHeaderProps>) {
   return (
     <div className="border-border shrink-0 border-b px-(--card-spacing) py-(--card-spacing)">
       <div className="flex items-center justify-between gap-4">

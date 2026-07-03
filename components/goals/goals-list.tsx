@@ -21,7 +21,7 @@ type GoalsListProps = {
   goals: Goal[];
 };
 
-export function GoalsList({ goals }: GoalsListProps) {
+export function GoalsList({ goals }: Readonly<GoalsListProps>) {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [selectedPeriods, setSelectedPeriods] = useState<Set<GoalPeriod>>(
     () => new Set(GOAL_PERIODS),

@@ -12,7 +12,9 @@ type VerifyEmailFormProps = {
   defaultEmail: string;
 };
 
-export function VerifyEmailForm({ defaultEmail }: VerifyEmailFormProps) {
+export function VerifyEmailForm({
+  defaultEmail,
+}: Readonly<VerifyEmailFormProps>) {
   const [state, formAction, pending] = useActionState(
     verifyEmail,
     initialState,

@@ -6,13 +6,10 @@ type PasswordFieldProps = {
 export function PasswordField({
   autoComplete = "current-password",
   minLength,
-}: PasswordFieldProps) {
+}: Readonly<PasswordFieldProps>) {
   return (
     <div className="space-y-2">
-      <label
-        htmlFor="password"
-        className="text-foreground text-sm font-medium"
-      >
+      <label htmlFor="password" className="text-foreground text-sm font-medium">
         Password
       </label>
       <input

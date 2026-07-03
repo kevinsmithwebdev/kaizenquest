@@ -11,7 +11,7 @@ type StreakCardProps = {
   streak: UserStreak;
 };
 
-export function StreakCard({ streak }: StreakCardProps) {
+export function StreakCard({ streak }: Readonly<StreakCardProps>) {
   return (
     <Card>
       <CardHeader className="pb-0">

@@ -17,7 +17,9 @@ type PeriodProgressSectionProps = {
   summary: PeriodProgressSummary;
 };
 
-function PeriodProgressSection({ summary }: PeriodProgressSectionProps) {
+function PeriodProgressSection({
+  summary,
+}: Readonly<PeriodProgressSectionProps>) {
   return (
     <section aria-label={summary.label}>
       <h3 className="font-heading text-sm leading-snug font-semibold">
@@ -41,7 +43,9 @@ function PeriodProgressSection({ summary }: PeriodProgressSectionProps) {
   );
 }
 
-export function PeriodProgressCard({ goals }: PeriodProgressCardProps) {
+export function PeriodProgressCard({
+  goals,
+}: Readonly<PeriodProgressCardProps>) {
   const summaries = GOAL_PERIODS.map((period) =>
     getPeriodProgressSummary(goals, period),
   );

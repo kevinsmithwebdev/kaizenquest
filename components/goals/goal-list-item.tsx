@@ -26,7 +26,7 @@ export function GoalListItem({
   goal,
   colorIndex,
   onSelect,
-}: GoalListItemProps) {
+}: Readonly<GoalListItemProps>) {
   const target = getGoalTargetDisplay(goal);
   const progress = getGoalProgressDisplay(goal);
   const met = isGoalMet(goal);

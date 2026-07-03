@@ -47,7 +47,7 @@ export function NumberStepperInput({
   id,
   className,
   "aria-label": ariaLabel,
-}: NumberStepperInputProps) {
+}: Readonly<NumberStepperInputProps>) {
   const numericValue = parseNumericValue(value);
   const hasNumericValue = Number.isFinite(numericValue);
   const effectiveValue = hasNumericValue ? numericValue : min;

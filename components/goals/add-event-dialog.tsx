@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useState, useTransition } from "react";
+import { createElement, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 
 import { addGoalEvent } from "@/app/actions/goals";
@@ -50,19 +50,24 @@ const sanitizeAmountInput = (value: string): string => {
   return fraction.length > 0 ? `${whole}.${fraction.join("")}` : whole;
 };
 
-function EventFormDescription({ goal }: { goal: Goal }) {
-  const categoryColors = getGoalCategoryColors(goal.category);
-  const categoryIcon = getGoalCategoryIcon(goal.category);
+function getEventFormDescription(goal: Goal): ReactNode {
   const goalName = <span className="font-semibold">{goal.name}</span>;
 
-  const description =
-    goal.type === "OCCURANCE" ? (
-      <>How many times did you perform {goalName}?</>
-    ) : goal.type === "TIME" ? (
-      <>How much time did you invest in {goalName}?</>
-    ) : (
-      <>How much did you perform {goalName}?</>
-    );
+  if (goal.type === "OCCURANCE") {
+    return <>How many times did you perform {goalName}?</>;
+  }
+
+  if (goal.type === "TIME") {
+    return <>How much time did you invest in {goalName}?</>;
+  }
+
+  return <>How much did you perform {goalName}?</>;
+}
+
+function EventFormDescription({ goal }: Readonly<{ goal: Goal }>) {
+  const categoryColors = getGoalCategoryColors(goal.category);
+  const categoryIcon = getGoalCategoryIcon(goal.category);
+  const description = getEventFormDescription(goal);
 
   return (
     <div className="flex items-start gap-2">
@@ -77,7 +82,60 @@ function EventFormDescription({ goal }: { goal: Goal }) {
   );
 }
 
-function AddEventForm({ goal, onClose }: AddEventFormProps) {
+function canSubmitGoalEvent(
+  goal: Goal,
+  occurrenceValue: number,
+  hoursValue: number,
+  minutesValue: number,
+  amountValue: number,
+): boolean {
+  if (goal.type === "OCCURANCE") {
+    return isPositiveOccurrenceValue(occurrenceValue);
+  }
+
+  if (goal.type === "TIME") {
+    return isPositiveTimeValue(hoursValue, minutesValue);
+  }
+
+  return isPositiveAmountValue(amountValue);
+}
+
+async function submitGoalEvent(
+  goal: Goal,
+  occurrenceValue: number,
+  hoursValue: number,
+  minutesValue: number,
+  amountValue: number,
+) {
+  const occurredAt = new Date();
+
+  if (goal.type === "OCCURANCE") {
+    return addGoalEvent({
+      goalId: goal.id,
+      type: "OCCURANCE",
+      occurrences: clampOccurrences(occurrenceValue),
+      occurredAt,
+    });
+  }
+
+  if (goal.type === "TIME") {
+    return addGoalEvent({
+      goalId: goal.id,
+      type: "TIME",
+      duration: minutesToIso8601Duration(hoursValue, minutesValue),
+      occurredAt,
+    });
+  }
+
+  return addGoalEvent({
+    goalId: goal.id,
+    type: "AMOUNT",
+    amount: roundAmountToThirdDecimal(amountValue),
+    occurredAt,
+  });
+}
+
+function AddEventForm({ goal, onClose }: Readonly<AddEventFormProps>) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -93,11 +151,13 @@ function AddEventForm({ goal, onClose }: AddEventFormProps) {
 
   const canSubmit =
     !isPending &&
-    (goal.type === "OCCURANCE"
-      ? isPositiveOccurrenceValue(occurrenceValue)
-      : goal.type === "TIME"
-        ? isPositiveTimeValue(hoursValue, minutesValue)
-        : isPositiveAmountValue(amountValue));
+    canSubmitGoalEvent(
+      goal,
+      occurrenceValue,
+      hoursValue,
+      minutesValue,
+      amountValue,
+    );
 
   const handleSubmit = () => {
     if (!canSubmit) {
@@ -107,28 +167,13 @@ function AddEventForm({ goal, onClose }: AddEventFormProps) {
     setError(null);
 
     startTransition(async () => {
-      const occurredAt = new Date();
-      const result =
-        goal.type === "OCCURANCE"
-          ? await addGoalEvent({
-              goalId: goal.id,
-              type: "OCCURANCE",
-              occurrences: clampOccurrences(occurrenceValue),
-              occurredAt,
-            })
-          : goal.type === "TIME"
-            ? await addGoalEvent({
-                goalId: goal.id,
-                type: "TIME",
-                duration: minutesToIso8601Duration(hoursValue, minutesValue),
-                occurredAt,
-              })
-            : await addGoalEvent({
-                goalId: goal.id,
-                type: "AMOUNT",
-                amount: roundAmountToThirdDecimal(amountValue),
-                occurredAt,
-              });
+      const result = await submitGoalEvent(
+        goal,
+        occurrenceValue,
+        hoursValue,
+        minutesValue,
+        amountValue,
+      );
 
       if (result.error || !result.goal) {
         setError(result.error ?? "Failed to add event");
@@ -246,7 +291,7 @@ export function AddEventDialog({
   goal,
   open,
   onOpenChange,
-}: AddEventDialogProps) {
+}: Readonly<AddEventDialogProps>) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent showCloseButton className="sm:max-w-md">

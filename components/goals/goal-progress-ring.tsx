@@ -19,7 +19,7 @@ export function GoalProgressRing({
   percent,
   color,
   className,
-}: GoalProgressRingProps) {
+}: Readonly<GoalProgressRingProps>) {
   const offset = CIRCUMFERENCE * (1 - percent / 100);
 
   return (

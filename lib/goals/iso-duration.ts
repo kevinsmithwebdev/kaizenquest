@@ -1,16 +1,11 @@
 import { z } from "zod";
 
-const ISO_8601_DURATION_REGEX =
-  /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/;
+import { isIso8601Duration } from "./iso-duration-parse";
 
-export const isIso8601Duration = (value: string): boolean => {
-  const match = ISO_8601_DURATION_REGEX.exec(value);
-  if (!match) {
-    return false;
-  }
-
-  return match.slice(1).some((part) => part !== undefined);
-};
+export {
+  isIso8601Duration,
+  parseIso8601DurationToMinutes,
+} from "./iso-duration-parse";
 
 export const iso8601DurationSchema = z
   .string()

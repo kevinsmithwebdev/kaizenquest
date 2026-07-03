@@ -53,7 +53,7 @@ export const toPrismaGoalUpdateData = (
   const base = {
     name: input.name,
     description: input.description,
-    ...(input.category !== undefined ? { category: input.category } : {}),
+    ...(input.category === undefined ? {} : { category: input.category }),
     period: input.period,
   };
 

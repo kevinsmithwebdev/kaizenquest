@@ -4,7 +4,7 @@ import type { InspirationalQuote } from "@/lib/quotes";
 
 type QuoteCardProps = InspirationalQuote;
 
-export function QuoteCard({ quote, source }: QuoteCardProps) {
+export function QuoteCard({ quote, source }: Readonly<QuoteCardProps>) {
   return (
     <figure className="bg-success-subtle flex gap-3 rounded-xl p-4">
       <Quote

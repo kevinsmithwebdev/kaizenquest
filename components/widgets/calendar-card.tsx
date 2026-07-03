@@ -16,6 +16,7 @@ import {
   buildCalendarMonth,
   formatCalendarMonthLabel,
   getMonthRef,
+  type CalendarDay,
   type MonthRef,
 } from "@/lib/calendar";
 import type { Goal } from "@/lib/goals/goal.types";
@@ -25,7 +26,35 @@ type CalendarCardProps = {
   goals: Goal[];
 };
 
-export function CalendarCard({ goals }: CalendarCardProps) {
+const getDayTitle = (
+  day: CalendarDay,
+  dayNumber: number,
+): string | undefined => {
+  if (day.isFuture) {
+    return undefined;
+  }
+
+  if (day.eventCount > 0) {
+    const eventLabel = day.eventCount === 1 ? "event" : "events";
+    return `${dayNumber}: ${day.eventCount} ${eventLabel}`;
+  }
+
+  return `${dayNumber}: no events`;
+};
+
+const getDayNumberClassName = (day: CalendarDay): string => {
+  if (day.isToday) {
+    return "flex size-7 items-center justify-center rounded-full text-xs font-medium bg-action text-action-foreground";
+  }
+
+  if (day.isCurrentMonth) {
+    return "flex size-7 items-center justify-center rounded-full text-xs font-medium text-foreground";
+  }
+
+  return "flex size-7 items-center justify-center rounded-full text-xs font-medium text-muted-foreground";
+};
+
+export function CalendarCard({ goals }: Readonly<CalendarCardProps>) {
   const [visibleMonth, setVisibleMonth] = useState<MonthRef>(() =>
     getMonthRef(),
   );
@@ -90,27 +119,12 @@ export function CalendarCard({ goals }: CalendarCardProps) {
                 role="gridcell"
                 className="flex flex-col items-center gap-1"
                 aria-current={day.isToday ? "date" : undefined}
-                title={
-                  day.isFuture
-                    ? undefined
-                    : hasEvents
-                      ? `${dayNumber}: ${day.eventCount} event${day.eventCount === 1 ? "" : "s"}`
-                      : `${dayNumber}: no events`
-                }
+                title={getDayTitle(day, dayNumber)}
               >
-                <span
-                  className={cn(
-                    "flex size-7 items-center justify-center rounded-full text-xs font-medium",
-                    day.isToday && "bg-action text-action-foreground",
-                    !day.isToday && day.isCurrentMonth && "text-foreground",
-                    !day.isToday &&
-                      !day.isCurrentMonth &&
-                      "text-muted-foreground",
-                  )}
-                >
+                <span className={cn(getDayNumberClassName(day))}>
                   {dayNumber}
                 </span>
-                {!day.isFuture ? (
+                {day.isFuture ? null : (
                   <span
                     className={cn(
                       "size-1.5 rounded-full",
@@ -118,7 +132,7 @@ export function CalendarCard({ goals }: CalendarCardProps) {
                     )}
                     aria-hidden
                   />
-                ) : null}
+                )}
               </div>
             );
           })}

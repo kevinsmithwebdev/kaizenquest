@@ -43,26 +43,19 @@ function createIco(images) {
   return Buffer.concat([header, ...images.map((image) => image.buffer)]);
 }
 
-async function main() {
-  const sizes = [16, 32, 48];
-  const images = await Promise.all(
-    sizes.map(async (size) => ({
-      size,
-      buffer: await sharp(Buffer.from(compassIconSvg))
-        .resize(size, size)
-        .png()
-        .toBuffer(),
-    })),
-  );
+const sizes = [16, 32, 48];
+const images = await Promise.all(
+  sizes.map(async (size) => ({
+    size,
+    buffer: await sharp(Buffer.from(compassIconSvg))
+      .resize(size, size)
+      .png()
+      .toBuffer(),
+  })),
+);
 
-  const ico = createIco(images);
-  const outputPath = join(__dirname, "../app/favicon.ico");
+const ico = createIco(images);
+const outputPath = join(__dirname, "../app/favicon.ico");
 
-  writeFileSync(outputPath, ico);
-  console.log(`Wrote ${outputPath}`);
-}
-
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+writeFileSync(outputPath, ico);
+console.log(`Wrote ${outputPath}`);

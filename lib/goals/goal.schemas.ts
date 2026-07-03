@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { GOAL_CATEGORIES } from "./goal-categories";
-import { GOAL_PERIODS, GOAL_TYPES } from "./goal.constants";
+import { GOAL_PERIODS } from "./goal.constants";
 import type { GoalType } from "./goal.types";
 import { iso8601DurationSchema } from "./iso-duration";
 

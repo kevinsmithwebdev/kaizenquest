@@ -8,7 +8,7 @@ type AppShellProps = {
   user: AuthUser;
 };
 
-export function AppShell({ children, user }: AppShellProps) {
+export function AppShell({ children, user }: Readonly<AppShellProps>) {
   return (
     <div className="flex h-dvh min-h-0">
       <AppSidebar />

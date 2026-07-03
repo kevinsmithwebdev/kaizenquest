@@ -1,28 +1,7 @@
 import type { Goal, GoalPeriod } from "./goal.types";
+import { parseIso8601DurationToMinutes } from "./iso-duration-parse";
 
-const ISO_8601_DURATION_REGEX =
-  /^P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/;
-
-export const parseIso8601DurationToMinutes = (value: string): number => {
-  const match = ISO_8601_DURATION_REGEX.exec(value);
-  if (!match) {
-    return 0;
-  }
-
-  const weeks = Number(match[3] ?? 0);
-  const days = Number(match[4] ?? 0);
-  const hours = Number(match[5] ?? 0);
-  const minutes = Number(match[6] ?? 0);
-  const seconds = Number(match[7] ?? 0);
-
-  return (
-    weeks * 7 * 24 * 60 +
-    days * 24 * 60 +
-    hours * 60 +
-    minutes +
-    Math.round(seconds / 60)
-  );
-};
+export { parseIso8601DurationToMinutes };
 
 export const formatMinutesAsGoalDuration = (totalMinutes: number): string => {
   if (totalMinutes <= 0) {
@@ -44,7 +23,7 @@ export const formatOccurrenceCount = (count: number): string => {
 export const formatAmount = (amount: number): string => {
   return Number.isInteger(amount)
     ? amount.toString()
-    : parseFloat(amount.toFixed(4)).toString();
+    : Number.parseFloat(amount.toFixed(4)).toString();
 };
 
 const getPeriodStart = (period: GoalPeriod, now = new Date()): Date => {
