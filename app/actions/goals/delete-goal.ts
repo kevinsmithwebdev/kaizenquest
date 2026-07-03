@@ -17,13 +17,18 @@ export async function deleteGoal(goalId: string): Promise<GoalMutationResult> {
       };
     }
 
-    const result = await prisma.goal.deleteMany({
+    const existing = await prisma.goal.findFirst({
       where: { id: parsed.data, userId: user.id },
     });
 
-    if (result.count === 0) {
+    if (!existing) {
       return { error: "Goal not found", goal: null };
     }
+
+    await prisma.$transaction([
+      prisma.goalEvent.deleteMany({ where: { goalId: parsed.data } }),
+      prisma.goal.delete({ where: { id: parsed.data } }),
+    ]);
 
     return { error: null, goal: null };
   } catch (error) {
