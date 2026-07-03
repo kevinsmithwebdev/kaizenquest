@@ -15,6 +15,8 @@ import { ScrollFade } from "@/components/ui/scroll-fade";
 
 import { AddEventDialog } from "./add-event-dialog";
 import { AddGoalDialog } from "./add-goal-dialog";
+import { DeleteGoalDialog } from "./delete-goal-dialog";
+import { EditGoalDialog } from "./edit-goal-dialog";
 import { GoalListItem } from "./goal-list-item";
 import { GoalsListHeader } from "./goals-list-header";
 
@@ -24,6 +26,8 @@ type GoalsListProps = {
 
 export function GoalsList({ goals }: Readonly<GoalsListProps>) {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
+  const [deletingGoal, setDeletingGoal] = useState<Goal | null>(null);
   const [addGoalOpen, setAddGoalOpen] = useState(false);
   const [selectedPeriods, setSelectedPeriods] = useState<Set<GoalPeriod>>(
     () => new Set(GOAL_PERIODS),
@@ -70,13 +74,15 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
                 : "No goals match the selected periods."}
             </p>
           ) : (
-            <ul className="grid grid-cols-[2.5rem_minmax(0,1fr)_0_8.5rem_1.75rem] gap-x-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_5.5rem_8.5rem_1.75rem]">
+            <ul className="grid grid-cols-[2.5rem_minmax(0,1fr)_0_8.5rem_1.75rem_2rem] gap-x-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_5.5rem_8.5rem_1.75rem_2rem]">
               {visibleGoals.map((goal, index) => (
                 <GoalListItem
                   key={goal.id}
                   goal={goal}
                   colorIndex={index}
                   onSelect={() => setSelectedGoal(goal)}
+                  onEdit={() => setEditingGoal(goal)}
+                  onDelete={() => setDeletingGoal(goal)}
                 />
               ))}
             </ul>
@@ -106,6 +112,26 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
       />
 
       <AddGoalDialog open={addGoalOpen} onOpenChange={setAddGoalOpen} />
+
+      <EditGoalDialog
+        goal={editingGoal}
+        open={editingGoal !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingGoal(null);
+          }
+        }}
+      />
+
+      <DeleteGoalDialog
+        goal={deletingGoal}
+        open={deletingGoal !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeletingGoal(null);
+          }
+        }}
+      />
     </>
   );
 }
