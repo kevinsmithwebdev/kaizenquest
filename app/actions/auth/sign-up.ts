@@ -2,13 +2,9 @@
 
 import { redirect } from "next/navigation";
 
-import { sendVerificationEmail } from "@/lib/email";
+import { setAuthCookieForUser } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import {
-  generateVerificationCode,
-  hashVerificationCode,
-} from "@/lib/verification-code";
 import { Prisma } from "@/lib/generated/prisma/client";
 
 import { signUpSchema } from "./auth.schemas";
@@ -33,30 +29,21 @@ export async function signUp(
   const { name, password } = parsed.data;
   const email = parsed.data.email.toLowerCase();
 
+  let userId: string;
+
   try {
     const passwordHash = await hashPassword(password);
 
     const user = await prisma.user.create({
-      data: { name, email, passwordHash },
-    });
-
-    const code = generateVerificationCode();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
-    await prisma.verificationToken.create({
       data: {
-        token: hashVerificationCode(code),
-        userId: user.id,
-        expiresAt,
+        name,
+        email,
+        passwordHash,
+        emailVerifiedAt: new Date(),
       },
     });
 
-    try {
-      await sendVerificationEmail({ to: email, name, code });
-    } catch {
-      await prisma.user.delete({ where: { id: user.id } });
-      return { error: "Could not send verification email. Please try again." };
-    }
+    userId = user.id;
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -67,5 +54,7 @@ export async function signUp(
     throw error;
   }
 
-  redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+  await setAuthCookieForUser(userId);
+
+  redirect("/dashboard");
 }

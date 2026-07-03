@@ -108,22 +108,22 @@ describe("signIn", () => {
     );
   });
 
-  it("returns an error when the email is not verified", async () => {
+  it("allows sign in when the email is not verified", async () => {
     mocks.prisma.user.findUnique.mockResolvedValue({
       id: "user-1",
       passwordHash: "hashed-password",
       emailVerifiedAt: null,
     });
 
-    const result = await signIn(
-      { error: null },
-      createFormData({ email: "ada@example.com", password: "password1" }),
+    await expectRedirect(
+      signIn(
+        { error: null },
+        createFormData({ email: "ada@example.com", password: "password1" }),
+      ),
+      "/dashboard",
     );
 
-    expect(result).toEqual({
-      error: "Please verify your email before signing in.",
-    });
-    expect(mocks.setAuthCookieForUser).not.toHaveBeenCalled();
+    expect(mocks.setAuthCookieForUser).toHaveBeenCalledWith("user-1");
   });
 
   it("sets the auth cookie and redirects to the dashboard on success", async () => {

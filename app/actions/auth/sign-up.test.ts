@@ -12,15 +12,9 @@ import {
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
   hashPassword: vi.fn(),
-  sendVerificationEmail: vi.fn(),
-  generateVerificationCode: vi.fn(),
-  hashVerificationCode: vi.fn(),
+  setAuthCookieForUser: vi.fn(),
   prisma: {
     user: {
-      create: vi.fn(),
-      delete: vi.fn(),
-    },
-    verificationToken: {
       create: vi.fn(),
     },
   },
@@ -37,13 +31,8 @@ vi.mock("@/lib/password", () => ({
   hashPassword: mocks.hashPassword,
 }));
 
-vi.mock("@/lib/email", () => ({
-  sendVerificationEmail: mocks.sendVerificationEmail,
-}));
-
-vi.mock("@/lib/verification-code", () => ({
-  generateVerificationCode: mocks.generateVerificationCode,
-  hashVerificationCode: mocks.hashVerificationCode,
+vi.mock("@/lib/auth", () => ({
+  setAuthCookieForUser: mocks.setAuthCookieForUser,
 }));
 
 vi.mock("@/lib/prisma", () => ({
@@ -60,11 +49,8 @@ describe("signUp", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.hashPassword.mockResolvedValue("hashed-password");
-    mocks.generateVerificationCode.mockReturnValue("ABCD2345");
-    mocks.hashVerificationCode.mockReturnValue("hashed-code");
     mocks.prisma.user.create.mockResolvedValue({ id: "user-1" });
-    mocks.prisma.verificationToken.create.mockResolvedValue({});
-    mocks.sendVerificationEmail.mockResolvedValue(undefined);
+    mocks.setAuthCookieForUser.mockResolvedValue(undefined);
   });
 
   it("returns a validation error for invalid input", async () => {
@@ -120,6 +106,7 @@ describe("signUp", () => {
         name: "Ada",
         email: "ada@example.com",
         passwordHash: "hashed-password",
+        emailVerifiedAt: expect.any(Date),
       },
     });
   });
@@ -139,34 +126,7 @@ describe("signUp", () => {
     ).rejects.toThrow("database down");
   });
 
-  it("rolls back the user when verification email sending fails", async () => {
-    mocks.sendVerificationEmail.mockRejectedValue(new Error("smtp down"));
-
-    const result = await signUp(
-      { error: null },
-      createFormData({
-        name: "Ada",
-        email: "ada@example.com",
-        password: "password1",
-      }),
-    );
-
-    expect(result).toEqual({
-      error: "Could not send verification email. Please try again.",
-    });
-    expect(mocks.prisma.user.delete).toHaveBeenCalledWith({
-      where: { id: "user-1" },
-    });
-    expect(mocks.prisma.verificationToken.create).toHaveBeenCalledWith({
-      data: {
-        token: "hashed-code",
-        userId: "user-1",
-        expiresAt: expect.any(Date),
-      },
-    });
-  });
-
-  it("creates the user and redirects to verify email on success", async () => {
+  it("creates the user, signs in, and redirects to the dashboard on success", async () => {
     await expectRedirect(
       signUp(
         { error: null },
@@ -176,16 +136,18 @@ describe("signUp", () => {
           password: "password1",
         }),
       ),
-      "/verify-email?email=ada%40example.com",
+      "/dashboard",
     );
 
-    expect(mocks.sendVerificationEmail).toHaveBeenCalledWith({
-      to: "ada@example.com",
-      name: "Ada",
-      code: "ABCD2345",
+    expect(mocks.prisma.user.create).toHaveBeenCalledWith({
+      data: {
+        name: "Ada",
+        email: "ada@example.com",
+        passwordHash: "hashed-password",
+        emailVerifiedAt: expect.any(Date),
+      },
     });
-    expect(mocks.redirect).toHaveBeenCalledWith(
-      "/verify-email?email=ada%40example.com",
-    );
+    expect(mocks.setAuthCookieForUser).toHaveBeenCalledWith("user-1");
+    expect(mocks.redirect).toHaveBeenCalledWith("/dashboard");
   });
 });

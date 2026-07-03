@@ -33,10 +33,6 @@ export async function signIn(
     return { error: "Invalid email or password." };
   }
 
-  if (!user.emailVerifiedAt) {
-    return { error: "Please verify your email before signing in." };
-  }
-
   await setAuthCookieForUser(user.id);
 
   redirect("/dashboard");
