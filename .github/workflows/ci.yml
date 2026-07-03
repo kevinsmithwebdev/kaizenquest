@@ -77,8 +77,11 @@ jobs:
         run: yarn prisma generate
 
       - name: Link Vercel project
-        if: ${{ secrets.VERCEL_ORG_ID == '' || secrets.VERCEL_PROJECT_ID == '' }}
         run: |
+          if [ -n "$VERCEL_ORG_ID" ] && [ -n "$VERCEL_PROJECT_ID" ]; then
+            echo "Using VERCEL_ORG_ID and VERCEL_PROJECT_ID from secrets"
+            exit 0
+          fi
           args=(link --repo --yes)
           if [ -n "$VERCEL_SCOPE" ]; then
             args+=(--scope "$VERCEL_SCOPE")
