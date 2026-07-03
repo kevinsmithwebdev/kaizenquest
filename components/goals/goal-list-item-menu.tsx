@@ -38,10 +38,10 @@ export function GoalListItemMenu({
       >
         <EllipsisVertical />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-36">
+      <DropdownMenuContent align="end" className="w-44">
         <DropdownMenuItem onClick={() => onEdit()} className="cursor-pointer">
           <Pencil />
-          Edit
+          Edit Goal
         </DropdownMenuItem>
         <DropdownMenuItem
           variant="destructive"
@@ -49,7 +49,7 @@ export function GoalListItemMenu({
           className="cursor-pointer"
         >
           <Trash2 />
-          Delete
+          Delete Goal
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

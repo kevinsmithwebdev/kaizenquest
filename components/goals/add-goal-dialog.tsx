@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { createGoal } from "@/app/actions/goals";
@@ -30,12 +30,13 @@ import {
   clampMinutes,
   clampOccurrences,
   formatAdjustedTimeDisplay,
-  isPositiveAmountValue,
-  isPositiveOccurrenceValue,
-  isPositiveTimeValue,
   minutesToIso8601Duration,
   roundAmountToThirdDecimal,
 } from "@/lib/goals/goal-event-input";
+import {
+  getGoalFormValidationErrors,
+  isGoalFormValid,
+} from "@/lib/goals/goal-form-validation";
 import type { CreateGoalInput } from "@/lib/goals/goal.schemas";
 import type { GoalPeriod, GoalType } from "@/lib/goals/goal.types";
 import { GOAL_PERIOD_FILTER_LABELS } from "@/lib/goals/goal-period-filter";
@@ -56,29 +57,25 @@ const sanitizeAmountInput = (value: string): string => {
   return fraction.length > 0 ? `${whole}.${fraction.join("")}` : whole;
 };
 
-const canSubmitGoal = (
-  name: string,
-  type: GoalType | "",
-  period: GoalPeriod | "",
-  occurrenceValue: number,
-  hoursValue: number,
-  minutesValue: number,
-  amountValue: number,
+const shouldShowFieldError = (
+  field: string,
+  touchedFields: ReadonlySet<string>,
+  hasAttemptedSubmit: boolean,
 ): boolean => {
-  if (name.trim().length === 0 || type === "" || period === "") {
-    return false;
-  }
-
-  if (type === "OCCURANCE") {
-    return isPositiveOccurrenceValue(occurrenceValue);
-  }
-
-  if (type === "TIME") {
-    return isPositiveTimeValue(hoursValue, minutesValue);
-  }
-
-  return isPositiveAmountValue(amountValue);
+  return touchedFields.has(field) || hasAttemptedSubmit;
 };
+
+function FieldError({
+  message,
+}: Readonly<{
+  message: string | undefined;
+}>) {
+  if (!message) {
+    return null;
+  }
+
+  return <p className="text-destructive text-sm">{message}</p>;
+}
 
 const buildCreateGoalInput = (
   name: string,
@@ -137,6 +134,10 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [touchedFields, setTouchedFields] = useState<Set<string>>(
+    () => new Set(),
+  );
   const [form, setForm] = useState(initialFormState);
 
   const occurrenceValue = Number(form.occurrences);
@@ -144,20 +145,32 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
   const minutesValue = Number(form.minutes);
   const amountValue = Number(form.amount);
 
-  const canSubmit =
-    !isPending &&
-    canSubmitGoal(
-      form.name,
-      form.type,
-      form.period,
-      occurrenceValue,
-      hoursValue,
-      minutesValue,
-      amountValue,
-    );
+  const validationErrors = useMemo(
+    () => getGoalFormValidationErrors(form, { mode: "create" }),
+    [form],
+  );
+
+  const canSubmit = !isPending && isGoalFormValid(validationErrors);
+
+  const touchField = (field: string) => {
+    setTouchedFields((current) => {
+      if (current.has(field)) {
+        return current;
+      }
+
+      const next = new Set(current);
+      next.add(field);
+      return next;
+    });
+  };
+
+  const showError = (field: string) =>
+    shouldShowFieldError(field, touchedFields, hasAttemptedSubmit);
 
   const handleSubmit = () => {
     const { type, period } = form;
+
+    setHasAttemptedSubmit(true);
 
     if (!canSubmit || type === "" || period === "") {
       return;
@@ -207,8 +220,13 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
             onChange={(event) =>
               setForm((current) => ({ ...current, name: event.target.value }))
             }
+            onBlur={() => touchField("name")}
+            aria-invalid={showError("name") && !!validationErrors.name}
             placeholder="e.g. Meditate"
             autoFocus
+          />
+          <FieldError
+            message={showError("name") ? validationErrors.name : undefined}
           />
         </div>
 
@@ -262,6 +280,8 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
                 period: event.target.value as GoalPeriod | "",
               }))
             }
+            onBlur={() => touchField("period")}
+            aria-invalid={showError("period") && !!validationErrors.period}
             className={fieldClassName}
           >
             <option value="">Select a period</option>
@@ -271,6 +291,9 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
               </option>
             ))}
           </select>
+          <FieldError
+            message={showError("period") ? validationErrors.period : undefined}
+          />
         </div>
 
         <div className="grid gap-2">
@@ -284,6 +307,8 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
                 type: event.target.value as GoalType | "",
               }))
             }
+            onBlur={() => touchField("type")}
+            aria-invalid={showError("type") && !!validationErrors.type}
             className={fieldClassName}
           >
             <option value="">Select a type</option>
@@ -293,6 +318,9 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
               </option>
             ))}
           </select>
+          <FieldError
+            message={showError("type") ? validationErrors.type : undefined}
+          />
         </div>
 
         {form.type === "OCCURANCE" ? (
@@ -308,6 +336,11 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
               min={1}
               max={1000}
               onBlurClamp={clampOccurrences}
+            />
+            <FieldError
+              message={
+                showError("target") ? validationErrors.target : undefined
+              }
             />
           </div>
         ) : null}
@@ -347,6 +380,11 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
             <p className="text-muted-foreground text-sm">
               Target: {formatAdjustedTimeDisplay(hoursValue, minutesValue)}
             </p>
+            <FieldError
+              message={
+                showError("target") ? validationErrors.target : undefined
+              }
+            />
           </div>
         ) : null}
 
@@ -357,6 +395,7 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
               id="goal-target-amount"
               inputMode="decimal"
               aria-label="target amount"
+              aria-invalid={showError("target") && !!validationErrors.target}
               value={form.amount}
               onChange={(event) =>
                 setForm((current) => ({
@@ -365,6 +404,8 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
                 }))
               }
               onBlur={() => {
+                touchField("target");
+
                 if (form.amount === "" || form.amount === ".") {
                   return;
                 }
@@ -375,6 +416,11 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
                 }));
               }}
               className="tabular-nums"
+            />
+            <FieldError
+              message={
+                showError("target") ? validationErrors.target : undefined
+              }
             />
           </div>
         ) : null}
