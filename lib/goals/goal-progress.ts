@@ -67,8 +67,9 @@ const getPeriodStart = (period: GoalPeriod, now = new Date()): Date => {
 export const getGoalProgressInPeriod = (
   goal: Goal,
   now = new Date(),
+  viewPeriod: GoalPeriod = goal.period,
 ): number => {
-  const periodStart = getPeriodStart(goal.period, now);
+  const periodStart = getPeriodStart(viewPeriod, now);
 
   return goal.history
     .filter((event) => event.occurredAt >= periodStart)
@@ -93,11 +94,29 @@ export const getGoalTargetValue = (goal: Goal): number => {
   return parseIso8601DurationToMinutes(goal.target);
 };
 
-export const isGoalMet = (goal: Goal, now = new Date()): boolean => {
-  const progress = getGoalProgressInPeriod(goal, now);
+export const isGoalMet = (
+  goal: Goal,
+  now = new Date(),
+  viewPeriod: GoalPeriod = goal.period,
+): boolean => {
+  const progress = getGoalProgressInPeriod(goal, now, viewPeriod);
   const target = getGoalTargetValue(goal);
 
   return target > 0 && progress >= target;
+};
+
+export const getGoalCompletionRatio = (
+  goal: Goal,
+  now = new Date(),
+  viewPeriod: GoalPeriod = goal.period,
+): number => {
+  const target = getGoalTargetValue(goal);
+  if (target <= 0) {
+    return 0;
+  }
+
+  const progress = getGoalProgressInPeriod(goal, now, viewPeriod);
+  return Math.min(1, progress / target);
 };
 
 export const getGoalProgressPercent = (

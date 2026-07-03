@@ -36,12 +36,20 @@ export {
 export {
   formatMinutesAsGoalDuration,
   formatOccurrenceCount,
+  getGoalCompletionRatio,
   getGoalProgressInPeriod,
   getGoalProgressPercent,
   getGoalTargetValue,
   isGoalMet,
   parseIso8601DurationToMinutes,
 } from "./goal-progress";
+export {
+  PERIOD_PROGRESS_LABELS,
+  formatGoalsCompletedLabel,
+  getPeriodProgressSummary,
+  type PeriodProgressSegment,
+  type PeriodProgressSummary,
+} from "./period-progress";
 export { isIso8601Duration, iso8601DurationSchema } from "./iso-duration";
 export { mapGoalFromPrisma } from "./map-goal";
 export { getGoalForUser, listGoalsForUser } from "./queries";

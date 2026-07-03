@@ -1,5 +1,10 @@
 import { GoalsList } from "@/components/goals";
-import { CalendarCard, QuoteCard, StreakCard } from "@/components/widgets";
+import {
+  CalendarCard,
+  PeriodProgressCard,
+  QuoteCard,
+  StreakCard,
+} from "@/components/widgets";
 import { getCurrentUser } from "@/lib/auth";
 import { listGoalsForUser } from "@/lib/goals";
 import { pickRandomQuote } from "@/lib/quotes";
@@ -21,6 +26,7 @@ export default async function DashboardPage() {
         <aside className="flex flex-col gap-4">
           <StreakCard streak={streak} />
           <CalendarCard goals={goals} />
+          <PeriodProgressCard goals={goals} />
           <QuoteCard quote={quote.quote} source={quote.source} />
         </aside>
       </div>
