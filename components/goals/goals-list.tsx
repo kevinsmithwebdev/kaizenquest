@@ -14,6 +14,7 @@ import { Card, CardFooter } from "@/components/ui/card";
 import { ScrollFade } from "@/components/ui/scroll-fade";
 
 import { AddEventDialog } from "./add-event-dialog";
+import { AddGoalDialog } from "./add-goal-dialog";
 import { GoalListItem } from "./goal-list-item";
 import { GoalsListHeader } from "./goals-list-header";
 
@@ -23,6 +24,7 @@ type GoalsListProps = {
 
 export function GoalsList({ goals }: Readonly<GoalsListProps>) {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [addGoalOpen, setAddGoalOpen] = useState(false);
   const [selectedPeriods, setSelectedPeriods] = useState<Set<GoalPeriod>>(
     () => new Set(GOAL_PERIODS),
   );
@@ -57,6 +59,7 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
           onTogglePeriod={togglePeriod}
           availablePeriods={availablePeriods}
           showPeriodFilter={showPeriodFilter}
+          onAddGoal={() => setAddGoalOpen(true)}
         />
 
         <ScrollFade className="min-h-0 flex-1">
@@ -84,6 +87,7 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
           <button
             type="button"
             className="text-action hover:text-action/80 inline-flex items-center gap-1.5 text-sm font-medium"
+            onClick={() => setAddGoalOpen(true)}
           >
             <Plus className="size-4" />
             Add Another Goal
@@ -100,6 +104,8 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
           }
         }}
       />
+
+      <AddGoalDialog open={addGoalOpen} onOpenChange={setAddGoalOpen} />
     </>
   );
 }

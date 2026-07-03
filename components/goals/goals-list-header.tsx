@@ -12,6 +12,7 @@ type GoalsListHeaderProps = {
   onTogglePeriod: (period: GoalPeriod) => void;
   availablePeriods: GoalPeriod[];
   showPeriodFilter: boolean;
+  onAddGoal: () => void;
 };
 
 const formatCurrentDate = (date = new Date()): string => {
@@ -27,6 +28,7 @@ export function GoalsListHeader({
   onTogglePeriod,
   availablePeriods,
   showPeriodFilter,
+  onAddGoal,
 }: Readonly<GoalsListHeaderProps>) {
   return (
     <div className="border-border shrink-0 border-b px-(--card-spacing) py-(--card-spacing)">
@@ -61,7 +63,7 @@ export function GoalsListHeader({
             </ButtonGroup>
           ) : null}
 
-          <Button type="button" variant="outline" size="sm">
+          <Button type="button" variant="outline" size="sm" onClick={onAddGoal}>
             <Plus data-icon="inline-start" />
             Add Goal
           </Button>
