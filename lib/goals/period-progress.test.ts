@@ -6,7 +6,9 @@ import {
   getPeriodProgressSummary,
 } from "./period-progress";
 
-const baseGoal: Goal = {
+type OccuranceGoal = Extract<Goal, { type: "OCCURANCE" }>;
+
+const baseGoal: OccuranceGoal = {
   id: "goal-1",
   userId: "user-1",
   name: "Meditate",
@@ -20,7 +22,7 @@ const baseGoal: Goal = {
   history: [],
 };
 
-const metGoal = (overrides: Partial<Goal> = {}): Goal => ({
+const metGoal = (overrides: Partial<OccuranceGoal> = {}): OccuranceGoal => ({
   ...baseGoal,
   ...overrides,
   history: [
@@ -33,7 +35,7 @@ const metGoal = (overrides: Partial<Goal> = {}): Goal => ({
   ],
 });
 
-const unmetGoal = (overrides: Partial<Goal> = {}): Goal => ({
+const unmetGoal = (overrides: Partial<OccuranceGoal> = {}): OccuranceGoal => ({
   ...baseGoal,
   ...overrides,
 });

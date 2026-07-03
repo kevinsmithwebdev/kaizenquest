@@ -8,6 +8,8 @@ export default defineConfig({
     environment: "node",
     coverage: {
       provider: "v8",
+      reporter: ["text", "text-summary", "lcov"],
+      reportsDirectory: "./coverage",
       include: [
         "app/actions/auth/**/*.ts",
         "lib/auth/**/*.ts",
