@@ -1,14 +1,16 @@
 import { z } from "zod";
 
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/auth.constants";
+
 export const signUpSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   email: z.string().trim().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
-
-export const verifyEmailSchema = z.object({
-  email: z.string().trim().email("Enter a valid email"),
-  code: z.string().trim().min(1, "Code is required"),
+  password: z
+    .string()
+    .min(
+      MIN_PASSWORD_LENGTH,
+      `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+    ),
 });
 
 export const signInSchema = z.object({

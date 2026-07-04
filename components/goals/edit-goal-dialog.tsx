@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { updateGoal } from "@/app/actions/goals";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,9 @@ import {
   getGoalFormValidationErrors,
   isGoalFormValid,
 } from "@/lib/goals/goal-form-validation";
+import { isUpdateGoalInputEqual } from "@/lib/goals/goal-input-utils";
 import { parseIso8601DurationToMinutes } from "@/lib/goals/iso-duration";
+import { matchGoalType } from "@/lib/goals/match-goal-type";
 import type { UpdateGoalInput } from "@/lib/goals/goal.schemas";
 import type { Goal, GoalPeriod } from "@/lib/goals/goal.types";
 
@@ -98,24 +99,20 @@ const buildUpdateGoalInput = (
     period,
   };
 
-  if (goal.type === "OCCURANCE") {
-    return {
+  return matchGoalType<UpdateGoalInput>(goal.type, {
+    OCCURANCE: () => ({
       ...base,
       target: clampOccurrences(occurrenceValue),
-    };
-  }
-
-  if (goal.type === "TIME") {
-    return {
+    }),
+    TIME: () => ({
       ...base,
       target: minutesToIso8601Duration(hoursValue, minutesValue),
-    };
-  }
-
-  return {
-    ...base,
-    target: roundAmountToThirdDecimal(amountValue),
-  };
+    }),
+    AMOUNT: () => ({
+      ...base,
+      target: roundAmountToThirdDecimal(amountValue),
+    }),
+  });
 };
 
 const isEditGoalFormDirty = (
@@ -150,11 +147,10 @@ const isEditGoalFormDirty = (
     amountValue,
   );
 
-  return JSON.stringify(initialInput) !== JSON.stringify(currentInput);
+  return !isUpdateGoalInputEqual(initialInput, currentInput);
 };
 
 function EditGoalForm({ goal, onClose }: Readonly<EditGoalFormProps>) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -239,7 +235,6 @@ function EditGoalForm({ goal, onClose }: Readonly<EditGoalFormProps>) {
       }
 
       onClose();
-      router.refresh();
     });
   };
 

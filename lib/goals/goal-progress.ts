@@ -1,3 +1,5 @@
+import { getWeekStartMonday, startOfDay } from "@/lib/dates";
+
 import type { Goal, GoalPeriod } from "./goal.types";
 import { parseIso8601DurationToMinutes } from "./iso-duration-parse";
 
@@ -27,19 +29,15 @@ export const formatAmount = (amount: number): string => {
 };
 
 const getPeriodStart = (period: GoalPeriod, now = new Date()): Date => {
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
-
   if (period === "DAY") {
-    return start;
+    return startOfDay(now);
   }
 
   if (period === "WEEK") {
-    const dayOffset = (start.getDay() + 6) % 7;
-    start.setDate(start.getDate() - dayOffset);
-    return start;
+    return getWeekStartMonday(now);
   }
 
+  const start = startOfDay(now);
   return new Date(start.getFullYear(), start.getMonth(), 1);
 };
 

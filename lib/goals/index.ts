@@ -52,7 +52,13 @@ export {
 } from "./period-progress";
 export { isIso8601Duration, iso8601DurationSchema } from "./iso-duration";
 export { mapGoalFromPrisma } from "./map-goal";
-export { getGoalForUser, listGoalsForUser } from "./queries";
+export { matchGoalType } from "./match-goal-type";
+export { isUpdateGoalInputEqual } from "./goal-input-utils";
+export {
+  getGoalForUser,
+  goalWithEventsInclude,
+  listGoalsForUser,
+} from "./queries";
 export { requireCurrentUser } from "./require-current-user";
 export {
   toPrismaGoalCreateData,

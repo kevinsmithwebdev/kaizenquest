@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { createGoal } from "@/app/actions/goals";
 import { Button } from "@/components/ui/button";
@@ -26,6 +25,7 @@ import {
 } from "@/lib/goals/goal-form-validation";
 import type { CreateGoalInput } from "@/lib/goals/goal.schemas";
 import type { GoalPeriod, GoalType } from "@/lib/goals/goal.types";
+import { matchGoalType } from "@/lib/goals/match-goal-type";
 
 import { GoalDetailsFields } from "./goal-details-fields";
 import {
@@ -58,27 +58,23 @@ const buildCreateGoalInput = (
     period,
   };
 
-  if (type === "OCCURANCE") {
-    return {
+  return matchGoalType<CreateGoalInput>(type, {
+    OCCURANCE: () => ({
       ...base,
-      type,
+      type: "OCCURANCE",
       target: clampOccurrences(occurrenceValue),
-    };
-  }
-
-  if (type === "TIME") {
-    return {
+    }),
+    TIME: () => ({
       ...base,
-      type,
+      type: "TIME",
       target: minutesToIso8601Duration(hoursValue, minutesValue),
-    };
-  }
-
-  return {
-    ...base,
-    type,
-    target: roundAmountToThirdDecimal(amountValue),
-  };
+    }),
+    AMOUNT: () => ({
+      ...base,
+      type: "AMOUNT",
+      target: roundAmountToThirdDecimal(amountValue),
+    }),
+  });
 };
 
 const initialFormState = () => ({
@@ -94,7 +90,6 @@ const initialFormState = () => ({
 });
 
 function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -163,7 +158,6 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
 
       setForm(initialFormState());
       onClose();
-      router.refresh();
     });
   };
 

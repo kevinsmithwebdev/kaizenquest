@@ -12,14 +12,14 @@ import { computeUserStreak } from "@/lib/streak";
 
 export default async function DashboardPage() {
   const user = await getCurrentUser();
-  const goals = user ? await listGoalsForUser(user.id) : [];
+  const goals = await listGoalsForUser(user!.id);
   const streak = computeUserStreak(goals);
   const quote = pickRandomQuote();
 
   return (
     <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-6">
       <p className="text-foreground shrink-0">
-        Welcome to your dashboard, {user?.name ?? "there"}.
+        Welcome to your dashboard, {user!.name}.
       </p>
       <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         <GoalsList goals={goals} />

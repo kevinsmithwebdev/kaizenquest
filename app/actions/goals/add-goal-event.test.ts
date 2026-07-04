@@ -13,9 +13,13 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/lib/auth", () => ({
-  getCurrentUser: mocks.getCurrentUser,
-}));
+vi.mock("@/lib/auth", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/auth")>();
+  return {
+    ...actual,
+    getCurrentUser: mocks.getCurrentUser,
+  };
+});
 
 vi.mock("@/lib/prisma", () => ({
   prisma: mocks.prisma,
@@ -25,16 +29,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: mocks.revalidatePath,
 }));
 
+import { mockUser } from "@/lib/auth/test-helpers";
+
 import { addGoalEvent } from "./add-goal-event";
 
-const authUser = {
-  id: "user-1",
-  name: "Test User",
-  email: "test@example.com",
-  emailVerifiedAt: new Date("2026-01-01T00:00:00.000Z"),
-  createdAt: new Date("2026-01-01T00:00:00.000Z"),
-  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-};
+const authUser = mockUser;
 
 const prismaOccuranceGoal = {
   id: "goal-1",

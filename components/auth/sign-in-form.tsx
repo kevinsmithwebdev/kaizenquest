@@ -5,6 +5,7 @@ import { useActionState } from "react";
 
 import { signIn, type SignInState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
+import { routes } from "@/lib/navigation";
 
 import { EmailField, PasswordField } from "./form-fields";
 
@@ -41,7 +42,7 @@ export function SignInForm() {
       <p className="text-muted-foreground mt-6 text-center text-sm">
         Don&apos;t have an account?{" "}
         <Link
-          href="/sign-up"
+          href={routes.signUp}
           className="text-brand font-medium hover:underline"
         >
           Create one

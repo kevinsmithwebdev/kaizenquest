@@ -5,6 +5,8 @@ import { useActionState } from "react";
 
 import { signUp, type SignUpState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth";
+import { routes } from "@/lib/navigation";
 
 import { EmailField, NameField, PasswordField } from "./form-fields";
 
@@ -27,7 +29,10 @@ export function SignUpForm() {
 
         <NameField />
         <EmailField />
-        <PasswordField autoComplete="new-password" minLength={8} />
+        <PasswordField
+          autoComplete="new-password"
+          minLength={MIN_PASSWORD_LENGTH}
+        />
 
         <Button
           type="submit"
@@ -42,7 +47,7 @@ export function SignUpForm() {
       <p className="text-muted-foreground mt-6 text-center text-sm">
         Already have an account?{" "}
         <Link
-          href="/sign-in"
+          href={routes.signIn}
           className="text-brand font-medium hover:underline"
         >
           Sign in

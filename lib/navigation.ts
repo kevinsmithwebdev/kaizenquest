@@ -1,5 +1,12 @@
 import { LayoutDashboard, type LucideIcon } from "lucide-react";
 
+export const routes = {
+  home: "/",
+  dashboard: "/dashboard",
+  signIn: "/sign-in",
+  signUp: "/sign-up",
+} as const;
+
 export type NavItem = {
   label: string;
   href: string;
@@ -7,5 +14,5 @@ export type NavItem = {
 };
 
 export const mainNavItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Dashboard", href: routes.dashboard, icon: LayoutDashboard },
 ];

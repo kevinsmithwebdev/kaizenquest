@@ -3,49 +3,51 @@ import type {
   GoalEvent as PrismaGoalEvent,
 } from "@/lib/generated/prisma/client";
 
-import type { Goal, GoalEvent } from "./goal.types";
+import { matchGoalType } from "./match-goal-type";
 import { normalizeGoalCategory } from "./goal-categories";
+import type { Goal, GoalEvent } from "./goal.types";
 
-const mapGoalEventFromPrisma = (event: PrismaGoalEvent): GoalEvent => {
-  if (event.type === "OCCURANCE") {
-    if (event.occurrences === null) {
-      throw new Error(
-        `Goal event ${event.id} is OCCURANCE but has no occurrences`,
-      );
-    }
+const mapGoalEventFromPrisma = (event: PrismaGoalEvent): GoalEvent =>
+  matchGoalType<GoalEvent>(event.type, {
+    OCCURANCE: () => {
+      if (event.occurrences === null) {
+        throw new Error(
+          `Goal event ${event.id} is OCCURANCE but has no occurrences`,
+        );
+      }
 
-    return {
-      id: event.id,
-      type: "OCCURANCE",
-      occurrences: event.occurrences,
-      occurredAt: event.occurredAt,
-    };
-  }
+      return {
+        id: event.id,
+        type: "OCCURANCE",
+        occurrences: event.occurrences,
+        occurredAt: event.occurredAt,
+      };
+    },
+    TIME: () => {
+      if (event.duration === null) {
+        throw new Error(`Goal event ${event.id} is TIME but has no duration`);
+      }
 
-  if (event.type === "TIME") {
-    if (event.duration === null) {
-      throw new Error(`Goal event ${event.id} is TIME but has no duration`);
-    }
+      return {
+        id: event.id,
+        type: "TIME",
+        duration: event.duration,
+        occurredAt: event.occurredAt,
+      };
+    },
+    AMOUNT: () => {
+      if (event.amount === null) {
+        throw new Error(`Goal event ${event.id} is AMOUNT but has no amount`);
+      }
 
-    return {
-      id: event.id,
-      type: "TIME",
-      duration: event.duration,
-      occurredAt: event.occurredAt,
-    };
-  }
-
-  if (event.amount === null) {
-    throw new Error(`Goal event ${event.id} is AMOUNT but has no amount`);
-  }
-
-  return {
-    id: event.id,
-    type: "AMOUNT",
-    amount: event.amount,
-    occurredAt: event.occurredAt,
-  };
-};
+      return {
+        id: event.id,
+        type: "AMOUNT",
+        amount: event.amount,
+        occurredAt: event.occurredAt,
+      };
+    },
+  });
 
 export const mapGoalFromPrisma = (
   goal: PrismaGoal,
@@ -64,39 +66,41 @@ export const mapGoalFromPrisma = (
     history,
   };
 
-  if (goal.type === "OCCURANCE") {
-    if (goal.targetOccurrences === null) {
-      throw new Error(
-        `Goal ${goal.id} is OCCURANCE but has no targetOccurrences`,
-      );
-    }
+  return matchGoalType<Goal>(goal.type, {
+    OCCURANCE: () => {
+      if (goal.targetOccurrences === null) {
+        throw new Error(
+          `Goal ${goal.id} is OCCURANCE but has no targetOccurrences`,
+        );
+      }
 
-    return {
-      ...base,
-      type: "OCCURANCE",
-      target: goal.targetOccurrences,
-    };
-  }
+      return {
+        ...base,
+        type: "OCCURANCE",
+        target: goal.targetOccurrences,
+      };
+    },
+    TIME: () => {
+      if (goal.targetDuration === null) {
+        throw new Error(`Goal ${goal.id} is TIME but has no targetDuration`);
+      }
 
-  if (goal.type === "TIME") {
-    if (goal.targetDuration === null) {
-      throw new Error(`Goal ${goal.id} is TIME but has no targetDuration`);
-    }
+      return {
+        ...base,
+        type: "TIME",
+        target: goal.targetDuration,
+      };
+    },
+    AMOUNT: () => {
+      if (goal.targetAmount === null) {
+        throw new Error(`Goal ${goal.id} is AMOUNT but has no targetAmount`);
+      }
 
-    return {
-      ...base,
-      type: "TIME",
-      target: goal.targetDuration,
-    };
-  }
-
-  if (goal.targetAmount === null) {
-    throw new Error(`Goal ${goal.id} is AMOUNT but has no targetAmount`);
-  }
-
-  return {
-    ...base,
-    type: "AMOUNT",
-    target: goal.targetAmount,
-  };
+      return {
+        ...base,
+        type: "AMOUNT",
+        target: goal.targetAmount,
+      };
+    },
+  });
 };

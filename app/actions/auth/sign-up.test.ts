@@ -3,11 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Prisma } from "@/lib/generated/prisma/client";
 
 import { signUpSchema } from "./auth.schemas";
-import {
-  createFormData,
-  expectRedirect,
-  RedirectError,
-} from "./test-helpers";
+import { createFormData, expectRedirect, RedirectError } from "./test-helpers";
 
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
@@ -106,7 +102,6 @@ describe("signUp", () => {
         name: "Ada",
         email: "ada@example.com",
         passwordHash: "hashed-password",
-        emailVerifiedAt: expect.any(Date),
       },
     });
   });
@@ -144,7 +139,6 @@ describe("signUp", () => {
         name: "Ada",
         email: "ada@example.com",
         passwordHash: "hashed-password",
-        emailVerifiedAt: expect.any(Date),
       },
     });
     expect(mocks.setAuthCookieForUser).toHaveBeenCalledWith("user-1");

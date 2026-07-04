@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 
 import { buttonVariants } from "@/components/ui/button";
 import { isAuthenticated } from "@/lib/auth";
+import { routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export default async function HomePage() {
   if (await isAuthenticated()) {
-    redirect("/dashboard");
+    redirect(routes.dashboard);
   }
 
   return (
@@ -28,7 +29,7 @@ export default async function HomePage() {
 
         <div className="mt-10 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
-            href="/sign-up"
+            href={routes.signUp}
             className={cn(
               buttonVariants({ variant: "brand", size: "lg" }),
               "h-11 px-6",
@@ -37,7 +38,7 @@ export default async function HomePage() {
             Create account
           </Link>
           <Link
-            href="/sign-in"
+            href={routes.signIn}
             className={cn(
               buttonVariants({ variant: "outline", size: "lg" }),
               "h-11 px-6",

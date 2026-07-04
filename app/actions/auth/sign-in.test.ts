@@ -1,11 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { signInSchema } from "./auth.schemas";
-import {
-  createFormData,
-  expectRedirect,
-  RedirectError,
-} from "./test-helpers";
+import { createFormData, expectRedirect, RedirectError } from "./test-helpers";
 
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
@@ -92,7 +88,6 @@ describe("signIn", () => {
     mocks.prisma.user.findUnique.mockResolvedValue({
       id: "user-1",
       passwordHash: "hashed-password",
-      emailVerifiedAt: new Date("2026-01-01"),
     });
     mocks.verifyPassword.mockResolvedValue(false);
 
@@ -108,29 +103,10 @@ describe("signIn", () => {
     );
   });
 
-  it("allows sign in when the email is not verified", async () => {
-    mocks.prisma.user.findUnique.mockResolvedValue({
-      id: "user-1",
-      passwordHash: "hashed-password",
-      emailVerifiedAt: null,
-    });
-
-    await expectRedirect(
-      signIn(
-        { error: null },
-        createFormData({ email: "ada@example.com", password: "password1" }),
-      ),
-      "/dashboard",
-    );
-
-    expect(mocks.setAuthCookieForUser).toHaveBeenCalledWith("user-1");
-  });
-
   it("sets the auth cookie and redirects to the dashboard on success", async () => {
     mocks.prisma.user.findUnique.mockResolvedValue({
       id: "user-1",
       passwordHash: "hashed-password",
-      emailVerifiedAt: new Date("2026-01-01"),
     });
 
     await expectRedirect(

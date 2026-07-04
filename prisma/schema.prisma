@@ -25,15 +25,13 @@ enum GoalType {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  name            String
-  email           String    @unique
-  passwordHash    String
-  emailVerifiedAt DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  verificationTokens VerificationToken[]
-  goals           Goal[]
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  goals        Goal[]
 }
 
 model Goal {
@@ -69,12 +67,3 @@ model GoalEvent {
   @@index([goalId, occurredAt])
 }
 
-model VerificationToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  @@index([userId])
-}

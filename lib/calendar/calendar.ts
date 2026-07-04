@@ -1,3 +1,4 @@
+import { addDays, getMondayWeekOffset, startOfDay } from "@/lib/dates";
 import type { Goal } from "@/lib/goals/goal.types";
 import { getEventCountOnDate } from "@/lib/streak/streak";
 
@@ -12,20 +13,6 @@ export const CALENDAR_WEEKDAY_LABELS = [
   "SAT",
   "SUN",
 ] as const;
-
-const startOfDay = (date: Date): Date => {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  return start;
-};
-
-const addDays = (date: Date, days: number): Date => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-};
-
-const getMondayWeekOffset = (date: Date): number => (date.getDay() + 6) % 7;
 
 export const getMonthRef = (date = new Date()): MonthRef => ({
   year: date.getFullYear(),

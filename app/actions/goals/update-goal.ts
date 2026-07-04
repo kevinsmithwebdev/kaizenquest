@@ -1,7 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
+import { isUnauthorizedError } from "@/lib/auth";
+import { routes } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
 import {
+  goalWithEventsInclude,
   mapGoalFromPrisma,
   requireCurrentUser,
   toPrismaGoalUpdateData,
@@ -9,16 +14,9 @@ import {
   validateGoalTarget,
   type UpdateGoalInput,
 } from "@/lib/goals";
+import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
 
 import type { GoalMutationResult } from "./goal.types";
-
-const goalWithEventsInclude = {
-  events: {
-    orderBy: {
-      occurredAt: "desc" as const,
-    },
-  },
-};
 
 export async function updateGoal(
   input: UpdateGoalInput,
@@ -29,7 +27,7 @@ export async function updateGoal(
 
     if (!parsed.success) {
       return {
-        error: parsed.error.issues[0]?.message ?? "Invalid input",
+        error: getFirstZodIssueMessage(parsed.error),
         goal: null,
       };
     }
@@ -46,7 +44,7 @@ export async function updateGoal(
 
     if (!targetParsed.success) {
       return {
-        error: targetParsed.error.issues[0]?.message ?? "Invalid target",
+        error: getFirstZodIssueMessage(targetParsed.error, "Invalid target"),
         goal: null,
       };
     }
@@ -68,12 +66,14 @@ export async function updateGoal(
       return { error: "Goal not found", goal: null };
     }
 
+    revalidatePath(routes.dashboard);
+
     return {
       error: null,
       goal: mapGoalFromPrisma(updated, updated.events),
     };
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (isUnauthorizedError(error)) {
       return { error: "Unauthorized", goal: null };
     }
 

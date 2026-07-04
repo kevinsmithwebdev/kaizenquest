@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { mapGoalFromPrisma } from "./map-goal";
 import type { Goal } from "./goal.types";
 
-const goalWithEventsInclude = {
+export const goalWithEventsInclude = {
   events: {
     orderBy: {
       occurredAt: "desc" as const,

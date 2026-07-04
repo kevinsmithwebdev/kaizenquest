@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { isUnauthorizedError } from "@/lib/auth";
 import type { Goal } from "@/lib/goals";
 import { listGoalsForUser, requireCurrentUser } from "@/lib/goals";
 
@@ -22,7 +23,7 @@ export async function GET() {
       goals: goals.map(serializeGoal),
     });
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (isUnauthorizedError(error)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

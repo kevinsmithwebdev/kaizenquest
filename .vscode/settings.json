@@ -21,5 +21,9 @@
   },
   "[css]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "sonarlint.connectedMode.project": {
+    "connectionId": "kevinsmithwebdev",
+    "projectKey": "kevinsmithwebdev_kaizenquest"
   }
 }

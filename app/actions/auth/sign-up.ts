@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { setAuthCookieForUser } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import { routes } from "@/lib/navigation";
+import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
 import { Prisma } from "@/lib/generated/prisma/client";
 
 import { signUpSchema } from "./auth.schemas";
@@ -22,7 +24,7 @@ export async function signUp(
 
   if (!parsed.success) {
     return {
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: getFirstZodIssueMessage(parsed.error),
     };
   }
 
@@ -39,7 +41,6 @@ export async function signUp(
         name,
         email,
         passwordHash,
-        emailVerifiedAt: new Date(),
       },
     });
 
@@ -56,5 +57,5 @@ export async function signUp(
 
   await setAuthCookieForUser(userId);
 
-  redirect("/dashboard");
+  redirect(routes.dashboard);
 }

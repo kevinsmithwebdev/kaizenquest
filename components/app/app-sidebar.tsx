@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Compass } from "lucide-react";
 
-import { mainNavItems } from "@/lib/navigation";
+import { mainNavItems, routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export function AppSidebar() {
@@ -19,7 +19,7 @@ export function AppSidebar() {
       <nav className="space-y-1 px-3 py-4">
         {mainNavItems.map((item) => {
           const Icon = item.icon;
-          const isActive = item.href === "/dashboard";
+          const isActive = item.href === routes.dashboard;
 
           return (
             <Link

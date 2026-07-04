@@ -9,7 +9,6 @@ const {
   VERCEL_TOKEN,
   DATABASE_URL: rawDatabaseUrl,
   SESSION_SECRET,
-  RESEND_API_KEY,
 } = process.env;
 
 if (!VERCEL_TOKEN) {
@@ -18,10 +17,8 @@ if (!VERCEL_TOKEN) {
   );
   process.exit(1);
 }
-if (!rawDatabaseUrl || !SESSION_SECRET || !RESEND_API_KEY) {
-  console.error(
-    "DATABASE_URL, SESSION_SECRET, and RESEND_API_KEY are required in .env.local",
-  );
+if (!rawDatabaseUrl || !SESSION_SECRET) {
+  console.error("DATABASE_URL and SESSION_SECRET are required in .env.local");
   process.exit(1);
 }
 
@@ -30,8 +27,6 @@ if (!databaseUrl.includes("-pooler.")) {
   databaseUrl = databaseUrl.replace(".c-", "-pooler.c-");
 }
 
-const emailFrom =
-  process.env.EMAIL_FROM ?? "Kaizen Quest <onboarding@resend.dev>";
 const projectName = process.env.VERCEL_PROJECT_NAME ?? "kaizenquest";
 
 async function api(method, path, body) {
@@ -104,8 +99,6 @@ async function main() {
 
   await upsertEnv("DATABASE_URL", databaseUrl);
   await upsertEnv("SESSION_SECRET", SESSION_SECRET);
-  await upsertEnv("RESEND_API_KEY", RESEND_API_KEY);
-  await upsertEnv("EMAIL_FROM", emailFrom);
 
   const teamId = project.accountId;
   const git = project.link;

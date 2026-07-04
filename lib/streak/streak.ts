@@ -1,3 +1,4 @@
+import { addDays, endOfDay, getWeekStartMonday, startOfDay } from "@/lib/dates";
 import type { Goal } from "@/lib/goals/goal.types";
 
 import type { DayActivity, UserStreak } from "./streak.types";
@@ -5,20 +6,6 @@ import type { DayActivity, UserStreak } from "./streak.types";
 export const MAX_ACTIVITY_EVENTS = 10;
 
 const WEEKDAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"] as const;
-
-const startOfDay = (date: Date): Date => {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  return start;
-};
-
-const addDays = (date: Date, days: number): Date => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-};
-
-const endOfDay = (date: Date): Date => addDays(startOfDay(date), 1);
 
 export const getEventCountOnDate = (goals: Goal[], date: Date): number => {
   const dayStart = startOfDay(date);
@@ -94,13 +81,6 @@ export const getBestStreak = (goals: Goal[], now = new Date()): number => {
   }
 
   return best;
-};
-
-const getWeekStartMonday = (now: Date): Date => {
-  const start = startOfDay(now);
-  const dayOffset = (start.getDay() + 6) % 7;
-  start.setDate(start.getDate() - dayOffset);
-  return start;
 };
 
 export const getWeeklyActivity = (

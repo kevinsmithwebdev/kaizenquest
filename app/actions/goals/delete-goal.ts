@@ -1,7 +1,12 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
+import { isUnauthorizedError } from "@/lib/auth";
+import { routes } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
 import { goalIdSchema, requireCurrentUser } from "@/lib/goals";
+import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
 
 import type { GoalMutationResult } from "./goal.types";
 
@@ -12,7 +17,7 @@ export async function deleteGoal(goalId: string): Promise<GoalMutationResult> {
 
     if (!parsed.success) {
       return {
-        error: parsed.error.issues[0]?.message ?? "Invalid input",
+        error: getFirstZodIssueMessage(parsed.error),
         goal: null,
       };
     }
@@ -30,9 +35,11 @@ export async function deleteGoal(goalId: string): Promise<GoalMutationResult> {
       prisma.goal.delete({ where: { id: parsed.data } }),
     ]);
 
+    revalidatePath(routes.dashboard);
+
     return { error: null, goal: null };
   } catch (error) {
-    if (error instanceof Error && error.message === "Unauthorized") {
+    if (isUnauthorizedError(error)) {
       return { error: "Unauthorized", goal: null };
     }
 

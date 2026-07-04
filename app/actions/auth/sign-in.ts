@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 import { setAuthCookieForUser } from "@/lib/auth";
 import { verifyPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import { routes } from "@/lib/navigation";
+import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
 
 import { signInSchema } from "./auth.schemas";
 import type { SignInState } from "./auth.types";
@@ -20,7 +22,7 @@ export async function signIn(
 
   if (!parsed.success) {
     return {
-      error: parsed.error.issues[0]?.message ?? "Invalid input",
+      error: getFirstZodIssueMessage(parsed.error),
     };
   }
 
@@ -35,5 +37,5 @@ export async function signIn(
 
   await setAuthCookieForUser(user.id);
 
-  redirect("/dashboard");
+  redirect(routes.dashboard);
 }

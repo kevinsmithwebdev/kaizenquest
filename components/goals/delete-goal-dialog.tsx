@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { deleteGoal } from "@/app/actions/goals";
 import { Button } from "@/components/ui/button";
@@ -27,7 +26,6 @@ type DeleteGoalFormProps = {
 };
 
 function DeleteGoalForm({ goal, onClose }: Readonly<DeleteGoalFormProps>) {
-  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +41,6 @@ function DeleteGoalForm({ goal, onClose }: Readonly<DeleteGoalFormProps>) {
       }
 
       onClose();
-      router.refresh();
     });
   };
 

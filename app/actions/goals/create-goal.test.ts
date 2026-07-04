@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
+  revalidatePath: vi.fn(),
   prisma: {
     goal: {
       create: vi.fn(),
@@ -9,24 +10,27 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-vi.mock("@/lib/auth", () => ({
-  getCurrentUser: mocks.getCurrentUser,
+vi.mock("next/cache", () => ({
+  revalidatePath: mocks.revalidatePath,
 }));
+
+vi.mock("@/lib/auth", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/auth")>();
+  return {
+    ...actual,
+    getCurrentUser: mocks.getCurrentUser,
+  };
+});
 
 vi.mock("@/lib/prisma", () => ({
   prisma: mocks.prisma,
 }));
 
+import { mockUser } from "@/lib/auth/test-helpers";
+
 import { createGoal } from "./create-goal";
 
-const authUser = {
-  id: "user-1",
-  name: "Test User",
-  email: "test@example.com",
-  emailVerifiedAt: new Date("2026-01-01T00:00:00.000Z"),
-  createdAt: new Date("2026-01-01T00:00:00.000Z"),
-  updatedAt: new Date("2026-01-01T00:00:00.000Z"),
-};
+const authUser = mockUser;
 
 const prismaOccuranceGoal = {
   id: "goal-1",
@@ -112,6 +116,7 @@ describe("createGoal", () => {
       target: 5,
       history: [],
     });
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 
   it("creates a TIME goal", async () => {
