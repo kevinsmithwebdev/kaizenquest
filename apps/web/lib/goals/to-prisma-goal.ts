@@ -3,9 +3,9 @@ import type { Prisma } from "@/lib/generated/prisma/client";
 import type {
   CreateGoalInput,
   GoalEventInput,
+  GoalType,
   UpdateGoalInput,
-} from "./goal.schemas";
-import type { GoalType } from "./goal.types";
+} from "@kaizen/domain-goals";
 
 export const toPrismaGoalCreateData = (
   userId: string,

@@ -12,7 +12,7 @@ import {
   toPrismaGoalCreateData,
   type CreateGoalInput,
 } from "@/lib/goals";
-import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
+import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
 
 import type { GoalMutationResult } from "./goal.types";
 

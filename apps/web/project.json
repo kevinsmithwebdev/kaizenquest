@@ -1,0 +1,16 @@
+{
+  "name": "web",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/web",
+  "projectType": "application",
+  "tags": ["scope:web", "type:app"],
+  "implicitDependencies": ["domain-goals", "shared-utils", "shared-contracts"],
+  "targets": {
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/web/tsconfig.json"
+      }
+    }
+  }
+}

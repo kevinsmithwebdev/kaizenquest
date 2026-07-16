@@ -3,9 +3,12 @@ import type {
   GoalEvent as PrismaGoalEvent,
 } from "@/lib/generated/prisma/client";
 
-import { matchGoalType } from "./match-goal-type";
-import { normalizeGoalCategory } from "./goal-categories";
-import type { Goal, GoalEvent } from "./goal.types";
+import {
+  matchGoalType,
+  normalizeGoalCategory,
+  type Goal,
+  type GoalEvent,
+} from "@kaizen/domain-goals";
 
 const mapGoalEventFromPrisma = (event: PrismaGoalEvent): GoalEvent =>
   matchGoalType<GoalEvent>(event.type, {

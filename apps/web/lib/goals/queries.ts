@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 import { mapGoalFromPrisma } from "./map-goal";
-import type { Goal } from "./goal.types";
+import type { Goal } from "@kaizen/domain-goals";
 
 export const goalWithEventsInclude = {
   events: {

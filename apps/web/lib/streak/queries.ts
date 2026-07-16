@@ -1,7 +1,6 @@
 import { listGoalsForUser } from "@/lib/goals/queries";
 
-import { computeUserStreak } from "./streak";
-import type { UserStreak } from "./streak.types";
+import { computeUserStreak, type UserStreak } from "@kaizen/domain-goals";
 
 export const getStreakForUser = async (userId: string): Promise<UserStreak> => {
   const goals = await listGoalsForUser(userId);

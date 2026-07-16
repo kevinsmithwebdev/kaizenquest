@@ -6,7 +6,7 @@ import { setAuthCookieForUser } from "@/lib/auth";
 import { hashPassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import { routes } from "@/lib/navigation";
-import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
+import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
 import { Prisma } from "@/lib/generated/prisma/client";
 
 import { signUpSchema } from "./auth.schemas";

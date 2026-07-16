@@ -1,4 +1,4 @@
-import { getWeekStartMonday, startOfDay } from "@/lib/dates";
+import { getWeekStartMonday, startOfDay } from "@kaizen/shared-utils";
 
 import type { Goal, GoalPeriod } from "./goal.types";
 import { parseIso8601DurationToMinutes } from "./iso-duration-parse";

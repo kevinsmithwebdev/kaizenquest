@@ -2,12 +2,18 @@
   "name": "kaizen",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "libs/shared/utils",
+    "libs/shared/contracts",
+    "libs/domain/goals"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "prisma migrate deploy && next build",
-    "start": "next start",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint",
+    "dev": "nx dev web",
+    "build": "prisma migrate deploy && nx build web",
+    "start": "nx start web",
+    "typecheck": "nx run-many -t typecheck",
+    "lint": "nx run-many -t lint",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -19,7 +25,11 @@
     "predev": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "infra:up": "nx run infra:up",
+    "infra:down": "nx run infra:down",
+    "infra:logs": "nx run infra:logs",
+    "infra:ps": "nx run infra:ps"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -41,6 +51,11 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@nx/eslint": "^23.1.0",
+    "@nx/js": "^23.1.0",
+    "@nx/next": "^23.1.0",
+    "@nx/vite": "^23.1.0",
+    "@nx/workspace": "^23.1.0",
     "@sonar/scan": "^4.3.8",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^3.0.0",
@@ -52,6 +67,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.9",
     "eslint-config-prettier": "^10.1.8",
+    "nx": "^23.1.0",
     "prettier": "^3.9.1",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "prisma": "^7.8.0",

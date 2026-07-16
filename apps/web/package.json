@@ -1,0 +1,10 @@
+{
+  "name": "@kaizen/web",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@kaizen/domain-goals": "0.0.1",
+    "@kaizen/shared-contracts": "0.0.1",
+    "@kaizen/shared-utils": "0.0.1"
+  }
+}

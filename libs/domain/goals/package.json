@@ -1,0 +1,12 @@
+{
+  "name": "@kaizen/domain-goals",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@kaizen/shared-utils": "0.0.1",
+    "zod": "^4.4.3"
+  }
+}

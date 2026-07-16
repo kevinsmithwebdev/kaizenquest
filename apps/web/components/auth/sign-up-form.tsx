@@ -5,7 +5,7 @@ import { useActionState } from "react";
 
 import { signUp, type SignUpState } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
-import { MIN_PASSWORD_LENGTH } from "@/lib/auth";
+import { MIN_PASSWORD_LENGTH } from "@/lib/auth/auth.constants";
 import { routes } from "@/lib/navigation";
 
 import { EmailField, NameField, PasswordField } from "./form-fields";

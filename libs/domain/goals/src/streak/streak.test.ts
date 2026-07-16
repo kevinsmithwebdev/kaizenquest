@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { Goal } from "@/lib/goals/goal.types";
+import type { Goal } from "../goals/goal.types";
 
 import {
   computeUserStreak,

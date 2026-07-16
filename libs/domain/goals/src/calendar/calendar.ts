@@ -1,6 +1,6 @@
-import { addDays, getMondayWeekOffset, startOfDay } from "@/lib/dates";
-import type { Goal } from "@/lib/goals/goal.types";
-import { getEventCountOnDate } from "@/lib/streak/streak";
+import { addDays, getMondayWeekOffset, startOfDay } from "@kaizen/shared-utils";
+import type { Goal } from "../goals/goal.types";
+import { getEventCountOnDate } from "../streak/streak";
 
 import type { CalendarDay, MonthRef } from "./calendar.types";
 

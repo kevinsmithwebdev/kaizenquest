@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../../..",
+    "outDir": "../../../dist/out-tsc/libs/domain/goals",
+    "declaration": true,
+    "types": ["node"],
+    "paths": {
+      "@kaizen/shared-utils": ["libs/shared/utils/src/index.ts"],
+      "@kaizen/shared-contracts": ["libs/shared/contracts/src/index.ts"],
+      "@kaizen/domain-goals": ["libs/domain/goals/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": []
+}

@@ -14,8 +14,13 @@
 /coverage
 
 # next.js
+/apps/web/.next/
+/apps/web/out/
 /.next/
-/out/
+
+# nx
+/dist
+/.nx/
 
 # production
 /build
@@ -44,7 +49,7 @@ next-env.d.ts
 /ai
 /personal
 
-/lib/generated/prisma
+/apps/web/lib/generated/prisma
 
 .vercel
 .env*

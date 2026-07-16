@@ -6,7 +6,7 @@ import { isUnauthorizedError } from "@/lib/auth";
 import { routes } from "@/lib/navigation";
 import { prisma } from "@/lib/prisma";
 import { goalIdSchema, requireCurrentUser } from "@/lib/goals";
-import { getFirstZodIssueMessage } from "@/lib/zod/get-first-zod-issue-message";
+import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
 
 import type { GoalMutationResult } from "./goal.types";
 

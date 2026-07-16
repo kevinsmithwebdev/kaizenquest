@@ -1,5 +1,10 @@
-import { addDays, endOfDay, getWeekStartMonday, startOfDay } from "@/lib/dates";
-import type { Goal } from "@/lib/goals/goal.types";
+import {
+  addDays,
+  endOfDay,
+  getWeekStartMonday,
+  startOfDay,
+} from "@kaizen/shared-utils";
+import type { Goal } from "../goals/goal.types";
 
 import type { DayActivity, UserStreak } from "./streak.types";
 
