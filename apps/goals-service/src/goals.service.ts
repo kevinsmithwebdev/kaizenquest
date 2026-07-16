@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -36,7 +37,7 @@ const goalWithEventsInclude = {
 
 @Injectable()
 export class GoalsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async list(authorizationHeader?: string) {
     const userId = await this.requireUserId(authorizationHeader);
@@ -51,7 +52,10 @@ export class GoalsService {
     };
   }
 
-  async create(authorizationHeader: string | undefined, input: CreateGoalInput) {
+  async create(
+    authorizationHeader: string | undefined,
+    input: CreateGoalInput,
+  ) {
     const userId = await this.requireUserId(authorizationHeader);
     const created = await this.prisma.goal.create({
       data: toPrismaGoalCreateData(userId, input),

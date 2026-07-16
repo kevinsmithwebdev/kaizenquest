@@ -41,6 +41,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Command                    | Description                               |
 | -------------------------- | ----------------------------------------- |
 | `yarn dev`                 | Start development server (`nx dev web`)   |
+| `yarn dev:complete`        | Infra + Nest services + web on :3000      |
 | `yarn build`               | Run migrations and build for production   |
 | `yarn test`                | Run unit tests                            |
 | `yarn test:coverage`       | Run tests with coverage (auth modules)    |
@@ -73,6 +74,16 @@ yarn infra:ps
 Connection strings are documented in [`.env.example`](.env.example). The web app continues to use `DATABASE_URL` until later cutover phases.
 
 ## Microservices (local)
+
+**All-in-one (recommended):**
+
+```bash
+yarn dev:complete
+```
+
+Starts Docker (Postgres + Kafka), generates/migrates Prisma clients, runs auth/goals/analytics/gateway, then Next.js at [http://localhost:3000](http://localhost:3000). Ctrl+C stops everything.
+
+**Or manually:**
 
 ```bash
 yarn infra:up

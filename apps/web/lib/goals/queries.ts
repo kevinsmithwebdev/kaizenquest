@@ -5,10 +5,10 @@ import { mapGoalFromApi } from "./map-goal-from-api";
 
 export const listGoalsForUser = async (_userId: string): Promise<Goal[]> => {
   const api = createServerApiClient();
-  const goals = (await api.listGoals()) as Parameters<
-    typeof mapGoalFromApi
-  >[0][];
-  return goals.map(mapGoalFromApi);
+  const { goals } = await api.listGoals();
+  return goals.map((goal) =>
+    mapGoalFromApi(goal as Parameters<typeof mapGoalFromApi>[0]),
+  );
 };
 
 export const getGoalForUser = async (

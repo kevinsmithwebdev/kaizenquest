@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   Logger,
   OnModuleDestroy,
@@ -25,7 +26,10 @@ export class GoalEventConsumer implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(GoalEventConsumer.name);
   private consumer: Consumer | null = null;
 
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    @Inject(AnalyticsService)
+    private readonly analyticsService: AnalyticsService,
+  ) {}
 
   onModuleInit() {
     void this.start();
@@ -64,9 +68,7 @@ export class GoalEventConsumer implements OnModuleInit, OnModuleDestroy {
         },
       });
 
-      this.logger.log(
-        `Consuming ${KAFKA_TOPICS.GOALS_GOAL_EVENT_LOGGED}`,
-      );
+      this.logger.log(`Consuming ${KAFKA_TOPICS.GOALS_GOAL_EVENT_LOGGED}`);
     } catch (error) {
       this.logger.warn(
         `Kafka consumer unavailable; HTTP will still serve: ${String(error)}`,

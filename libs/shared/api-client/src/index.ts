@@ -1,3 +1,9 @@
+import type {
+  AuthTokenResponse,
+  AuthUser,
+  GoalsListResponse,
+} from "@kaizen/shared-contracts";
+
 export type ApiClientOptions = {
   baseUrl: string;
   getAccessToken?: () => string | null | Promise<string | null>;
@@ -49,17 +55,17 @@ export const createApiClient = (options: ApiClientOptions) => {
 
   return {
     signUp: (input: { name: string; email: string; password: string }) =>
-      request<{ accessToken: string; user: unknown }>("/auth/sign-up", {
+      request<AuthTokenResponse>("/auth/sign-up", {
         method: "POST",
         body: JSON.stringify(input),
       }),
     signIn: (input: { email: string; password: string }) =>
-      request<{ accessToken: string; user: unknown }>("/auth/sign-in", {
+      request<AuthTokenResponse>("/auth/sign-in", {
         method: "POST",
         body: JSON.stringify(input),
       }),
-    me: () => request<unknown>("/auth/me"),
-    listGoals: () => request<unknown[]>("/goals"),
+    me: () => request<AuthUser>("/auth/me"),
+    listGoals: () => request<GoalsListResponse>("/goals"),
     createGoal: (input: unknown) =>
       request<unknown>("/goals", {
         method: "POST",

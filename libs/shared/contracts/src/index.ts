@@ -40,6 +40,7 @@ export {
   type AddGoalEventInput,
   type GoalEvent,
   type Goal,
+  type GoalsListResponse,
 } from "./goals/goal.schemas";
 
 export { KAFKA_TOPICS, type KafkaTopic } from "./kafka/topics";

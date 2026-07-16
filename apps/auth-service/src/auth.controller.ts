@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post } from "@nestjs/common";
+import { Body, Controller, Get, Headers, Inject, Post } from "@nestjs/common";
 import { signInSchema, signUpSchema } from "@kaizen/shared-contracts";
 import { ZodValidationPipe } from "@kaizen/shared-nestjs";
 
@@ -6,7 +6,7 @@ import { AuthService } from "./auth.service";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @Post("sign-up")
   signUp(@Body(new ZodValidationPipe(signUpSchema)) body: unknown) {

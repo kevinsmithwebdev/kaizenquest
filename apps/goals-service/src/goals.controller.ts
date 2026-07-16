@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Headers,
+  Inject,
   Param,
   Patch,
   Post,
@@ -19,7 +20,9 @@ import { GoalsService } from "./goals.service";
 
 @Controller("goals")
 export class GoalsController {
-  constructor(private readonly goalsService: GoalsService) {}
+  constructor(
+    @Inject(GoalsService) private readonly goalsService: GoalsService,
+  ) {}
 
   @Get()
   list(@Headers("authorization") authorization?: string) {

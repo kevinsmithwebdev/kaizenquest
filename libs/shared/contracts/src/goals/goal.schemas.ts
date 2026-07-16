@@ -143,6 +143,7 @@ export type GoalEventInput = z.infer<typeof goalEventSchema>;
 export type AddGoalEventInput = z.infer<typeof addGoalEventSchema>;
 export type GoalEvent = z.infer<typeof goalEventResponseSchema>;
 export type Goal = z.infer<typeof goalSchema>;
+export type GoalsListResponse = z.infer<typeof goalsListResponseSchema>;
 
 export const validateGoalTarget = (type: GoalType, target: unknown) => {
   if (type === "OCCURANCE") {

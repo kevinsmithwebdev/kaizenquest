@@ -1,11 +1,7 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { verifyAuthToken } from "@kaizen/domain-auth";
 import { getCappedActivityLevel } from "@kaizen/domain-goals";
-import {
-  addDays,
-  getWeekStartMonday,
-  startOfDay,
-} from "@kaizen/shared-utils";
+import { addDays, getWeekStartMonday, startOfDay } from "@kaizen/shared-utils";
 
 import { PrismaService } from "./prisma.service";
 
@@ -32,7 +28,7 @@ const toDateOnly = (date: Date): Date => {
 
 @Injectable()
 export class AnalyticsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async getStreak(authorizationHeader?: string) {
     const userId = await this.requireUserId(authorizationHeader);

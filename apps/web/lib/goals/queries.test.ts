@@ -48,7 +48,7 @@ describe("listGoalsForUser", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.listGoals.mockResolvedValue([apiOccuranceGoal]);
+    mocks.listGoals.mockResolvedValue({ goals: [apiOccuranceGoal] });
   });
 
   it("returns mapped goals with history for the user", async () => {
@@ -82,11 +82,11 @@ describe("getGoalForUser", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.listGoals.mockResolvedValue([apiOccuranceGoal]);
+    mocks.listGoals.mockResolvedValue({ goals: [apiOccuranceGoal] });
   });
 
   it("returns null when the goal is not in the listed goals", async () => {
-    mocks.listGoals.mockResolvedValue([]);
+    mocks.listGoals.mockResolvedValue({ goals: [] });
 
     const goal = await getGoalForUser("user-2", "goal-1");
 

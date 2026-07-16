@@ -1,10 +1,13 @@
-import { Controller, Get, Headers } from "@nestjs/common";
+import { Controller, Get, Headers, Inject } from "@nestjs/common";
 
 import { AnalyticsService } from "./analytics.service";
 
 @Controller("analytics")
 export class AnalyticsController {
-  constructor(private readonly analyticsService: AnalyticsService) {}
+  constructor(
+    @Inject(AnalyticsService)
+    private readonly analyticsService: AnalyticsService,
+  ) {}
 
   @Get("streak")
   getStreak(@Headers("authorization") authorization?: string) {
