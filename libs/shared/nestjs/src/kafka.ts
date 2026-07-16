@@ -5,7 +5,10 @@ let connecting: Promise<Producer | null> | null = null;
 
 const getBrokers = (): string[] => {
   const raw = process.env.KAFKA_BROKERS ?? "localhost:9092";
-  return raw.split(",").map((b) => b.trim()).filter(Boolean);
+  return raw
+    .split(",")
+    .map((b) => b.trim())
+    .filter(Boolean);
 };
 
 export async function getKafkaProducer(): Promise<Producer | null> {

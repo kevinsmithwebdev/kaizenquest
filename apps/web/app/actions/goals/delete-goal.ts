@@ -10,9 +10,7 @@ import { ApiError } from "@kaizen/shared-api-client";
 
 import type { GoalMutationResult } from "./goal.types";
 
-export async function deleteGoal(
-  goalId: string,
-): Promise<GoalMutationResult> {
+export async function deleteGoal(goalId: string): Promise<GoalMutationResult> {
   try {
     await requireCurrentUser();
     const parsed = goalIdSchema.safeParse(goalId);
