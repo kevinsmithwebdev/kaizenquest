@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GoalPeriod {
+  DAY
+  WEEK
+  MONTH
+}
+
+enum GoalType {
+  OCCURANCE
+  TIME
+  AMOUNT
+}
+
+model Goal {
+  id                String     @id @default(cuid())
+  userId            String
+  name              String
+  description       String     @default("")
+  period            GoalPeriod
+  type              GoalType
+  targetOccurrences Int?
+  targetDuration    String?
+  targetAmount      Float?
+  category          String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  events            GoalEvent[]
+
+  @@index([userId])
+}
+
+model GoalEvent {
+  id          String   @id @default(cuid())
+  goalId      String
+  goal        Goal     @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  type        GoalType
+  occurrences Int?
+  duration    String?
+  amount      Float?
+  occurredAt  DateTime @default(now())
+
+  @@index([goalId])
+  @@index([goalId, occurredAt])
+}
