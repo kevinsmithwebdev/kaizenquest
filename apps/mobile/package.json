@@ -1,0 +1,10 @@
+{
+  "name": "@kaizen/mobile",
+  "version": "0.0.1",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@kaizen/shared-api-client": "0.0.1",
+    "@kaizen/shared-contracts": "0.0.1"
+  }
+}

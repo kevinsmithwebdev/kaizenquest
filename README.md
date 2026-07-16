@@ -72,14 +72,43 @@ yarn infra:ps
 
 Connection strings are documented in [`.env.example`](.env.example). The web app continues to use `DATABASE_URL` until later cutover phases.
 
+## Microservices (local)
+
+```bash
+yarn infra:up
+# In separate terminals (or yarn services:serve):
+yarn auth:serve       # :3001
+yarn goals:serve      # :3002
+yarn gateway:serve    # :3003
+yarn analytics:serve  # :3004
+yarn dev              # web :3000
+```
+
+Set in `.env.local`:
+
+```env
+API_GATEWAY_URL="http://localhost:3003"
+SESSION_SECRET="your-secret-at-least-32-characters"
+AUTH_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15433/auth_db"
+GOALS_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15434/goals_db"
+ANALYTICS_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15435/analytics_db"
+KAFKA_BROKERS="localhost:9092"
+```
+
 ## Monorepo layout
 
 ```
-apps/web/          Next.js frontend (current product)
-libs/shared/utils/ Shared date and Zod helpers
-libs/shared/contracts/  Zod API + Kafka contracts (portable)
-libs/domain/goals/ Pure goal, streak, and calendar logic
-libs/infra/        Docker Compose Nx targets
+apps/web/              Next.js frontend (calls API gateway)
+apps/auth-service/     NestJS auth + auth_db
+apps/goals-service/    NestJS goals + goals_db
+apps/analytics-service NestJS analytics + Kafka consumer
+apps/api-gateway/      NestJS HTTP gateway
+apps/mobile/           RN/Expo shell (api-client ready)
+libs/shared/contracts/ Zod API + Kafka contracts
+libs/shared/api-client Gateway fetch client
+libs/domain/auth/      JWT + password helpers
+libs/domain/goals/     Pure goal/streak/calendar logic
+libs/infra/            Docker Compose Nx targets
 ```
 
 **Vercel:** set the project root directory to `apps/web` in the Vercel dashboard.

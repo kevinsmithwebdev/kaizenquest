@@ -30,17 +30,34 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Generate Prisma client
-        run: yarn prisma generate
+      - name: Generate Prisma clients
+        run: |
+          yarn prisma generate
+          yarn prisma generate --config apps/auth-service/prisma.config.ts
+          yarn prisma generate --config apps/goals-service/prisma.config.ts
+          yarn prisma generate --config apps/analytics-service/prisma.config.ts
+        env:
+          AUTH_DATABASE_URL: postgresql://kaizen:kaizen@localhost:15433/auth_db
+          GOALS_DATABASE_URL: postgresql://kaizen:kaizen@localhost:15434/goals_db
+          ANALYTICS_DATABASE_URL: postgresql://kaizen:kaizen@localhost:15435/analytics_db
 
-      - name: Validate
-        run: yarn validate
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Test
+        run: yarn test:coverage
+
+      - name: Sonar
+        if: env.SONAR_TOKEN != ''
+        run: |
+          node scripts/disable-sonar-autoscan.mjs
+          yarn sonar
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy:
-    name: Deploy to Vercel
+  deploy-web:
+    name: Deploy web to Vercel
     needs: validate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
@@ -64,9 +81,6 @@ jobs:
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
             echo "::error::Missing VERCEL_TOKEN GitHub secret."
-            echo "1. Create a token: https://vercel.com/account/tokens"
-            echo "2. Add it here: https://github.com/kevinsmithwebdev/kaizenquest/settings/secrets/actions"
-            echo "   Name: VERCEL_TOKEN"
             exit 1
           fi
 

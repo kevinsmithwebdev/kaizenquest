@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "types": ["node"],
+    "noEmit": true,
+    "baseUrl": "../..",
+    "paths": {
+      "@kaizen/shared-api-client": ["libs/shared/api-client/src/index.ts"],
+      "@kaizen/shared-contracts": ["libs/shared/contracts/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}
