@@ -11,6 +11,19 @@
         "command": "tsx watch --tsconfig apps/auth-service/tsconfig.app.json apps/auth-service/src/main.ts"
       }
     },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/build-service.mjs auth-service"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node dist/apps/auth-service/main.mjs"
+      },
+      "dependsOn": ["build"]
+    },
     "prisma-generate": {
       "executor": "nx:run-commands",
       "options": {
@@ -22,6 +35,12 @@
       "options": {
         "cwd": "apps/auth-service",
         "command": "prisma migrate dev --config prisma.config.ts --name init"
+      }
+    },
+    "prisma-migrate-deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma migrate deploy --config apps/auth-service/prisma.config.ts"
       }
     },
     "typecheck": {

@@ -1,0 +1,14 @@
+node_modules
+.git
+.nx
+.next
+dist
+coverage
+apps/web/.next
+apps/mobile
+**/*.test.ts
+**/*.test.tsx
+.env
+.env.local
+*.md
+!docs/deploy.md

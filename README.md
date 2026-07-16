@@ -11,83 +11,67 @@ A personal habit and goal tracking web app built with Next.js. Track daily, week
 
 ## Environment variables
 
-Create a `.env.local` file in the repository root:
+Create a `.env.local` file in the repository root (see [`.env.example`](.env.example)):
 
 ```env
-DATABASE_URL="postgresql://..."
 SESSION_SECRET="your-secret-at-least-32-characters"
+API_GATEWAY_URL="http://localhost:3003"
+AUTH_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15433/auth_db"
+GOALS_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15434/goals_db"
+ANALYTICS_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15435/analytics_db"
+KAFKA_BROKERS="localhost:9092"
 ```
 
 ## Getting started
 
-Install dependencies and run migrations:
-
 ```bash
 yarn install
-yarn db:migrate
-```
-
-Start the development server:
-
-```bash
-yarn dev
-# or: nx dev web
+yarn infra:up
+yarn migrate:be
+yarn dev:complete
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                    | Description                               |
-| -------------------------- | ----------------------------------------- |
-| `yarn dev`                 | Start development server (`nx dev web`)   |
-| `yarn dev:complete`        | Infra + Nest services + web on :3000      |
-| `yarn build`               | Run migrations and build for production   |
-| `yarn test`                | Run unit tests                            |
-| `yarn test:coverage`       | Run tests with coverage (auth modules)    |
-| `yarn validate`            | Typecheck, lint, test, and optional Sonar |
-| `yarn db:migrate`          | Apply Prisma migrations                   |
-| `yarn db:studio`           | Open Prisma Studio                        |
-| `nx run-many -t typecheck` | Typecheck all projects                    |
-| `yarn infra:up`            | Start Kafka + Postgres (Docker Compose)   |
-| `yarn infra:ps`            | Show infra container status               |
-| `yarn infra:logs`          | Tail infra logs                           |
-| `yarn infra:down`          | Stop infra (keeps volumes)                |
+| Command               | Description                                      |
+| --------------------- | ------------------------------------------------ |
+| `yarn dev`            | Start Next.js (`nx dev web`)                     |
+| `yarn dev:complete`   | Infra + Nest services + web on :3000             |
+| `yarn build`          | Build web for production                         |
+| `yarn build:services` | Bundle Nest services to `dist/apps/*/main.mjs`   |
+| `yarn deploy:web`     | Upsert Vercel env + deploy web                   |
+| `yarn deploy:be`      | Deploy Nest services to Railway                  |
+| `yarn migrate:be`     | `prisma migrate deploy` for auth/goals/analytics |
+| `yarn test`           | Run unit tests                                   |
+| `yarn validate`       | Typecheck, lint, test, and optional Sonar        |
+| `yarn infra:up`       | Start Kafka + Postgres (Docker Compose)          |
+| `yarn infra:down`     | Stop infra (keeps volumes)                       |
 
 ## Local infrastructure
-
-Starts Kafka (KRaft), Kafka UI, and one Postgres per future microservice:
 
 ```bash
 yarn infra:up
 yarn infra:ps
 ```
 
-| Service            | Host                                           | Notes         |
-| ------------------ | ---------------------------------------------- | ------------- |
-| Postgres auth      | `localhost:15433` / `auth_db`                  | Phase 3       |
-| Postgres goals     | `localhost:15434` / `goals_db`                 | Phase 4       |
-| Postgres analytics | `localhost:15435` / `analytics_db`             | Phase 7+      |
-| Kafka              | `localhost:9092`                               | Event bus     |
-| Kafka UI           | [http://localhost:8080](http://localhost:8080) | Topic browser |
-
-Connection strings are documented in [`.env.example`](.env.example). The web app continues to use `DATABASE_URL` until later cutover phases.
+| Service            | Host                                           |
+| ------------------ | ---------------------------------------------- |
+| Postgres auth      | `localhost:15433` / `auth_db`                  |
+| Postgres goals     | `localhost:15434` / `goals_db`                 |
+| Postgres analytics | `localhost:15435` / `analytics_db`             |
+| Kafka              | `localhost:9092`                               |
+| Kafka UI           | [http://localhost:8080](http://localhost:8080) |
 
 ## Microservices (local)
 
-**All-in-one (recommended):**
-
-```bash
-yarn dev:complete
-```
-
-Starts Docker (Postgres + Kafka), generates/migrates Prisma clients, runs auth/goals/analytics/gateway, then Next.js at [http://localhost:3000](http://localhost:3000). Ctrl+C stops everything.
+**All-in-one (recommended):** `yarn dev:complete`
 
 **Or manually:**
 
 ```bash
 yarn infra:up
-# In separate terminals (or yarn services:serve):
 yarn auth:serve       # :3001
 yarn goals:serve      # :3002
 yarn gateway:serve    # :3003
@@ -95,15 +79,16 @@ yarn analytics:serve  # :3004
 yarn dev              # web :3000
 ```
 
-Set in `.env.local`:
+## Production deploy
 
-```env
-API_GATEWAY_URL="http://localhost:3003"
-SESSION_SECRET="your-secret-at-least-32-characters"
-AUTH_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15433/auth_db"
-GOALS_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15434/goals_db"
-ANALYTICS_DATABASE_URL="postgresql://kaizen:kaizen@localhost:15435/analytics_db"
-KAFKA_BROKERS="localhost:9092"
+Web → **Vercel**, Nest + Kafka → **Railway**, Postgres → **Neon** (3 DBs).
+
+Full runbook: **[docs/deploy.md](docs/deploy.md)**
+
+```bash
+yarn migrate:be
+yarn deploy:be
+yarn deploy:web   # needs API_GATEWAY_URL + SESSION_SECRET + VERCEL_TOKEN
 ```
 
 ## Monorepo layout
@@ -127,7 +112,8 @@ libs/infra/            Docker Compose Nx targets
 ## Tech stack
 
 - Next.js 16 (App Router), React 19, TypeScript
-- PostgreSQL via Prisma 7
+- NestJS microservices + Kafka (Redpanda in prod)
+- PostgreSQL via Prisma 7 (Neon in prod)
 - JWT cookie authentication
 - Tailwind CSS 4, shadcn/ui
 - Vitest for unit tests

@@ -11,6 +11,19 @@
         "command": "tsx watch --tsconfig apps/api-gateway/tsconfig.app.json apps/api-gateway/src/main.ts"
       }
     },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node scripts/build-service.mjs api-gateway"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node dist/apps/api-gateway/main.mjs"
+      },
+      "dependsOn": ["build"]
+    },
     "typecheck": {
       "executor": "nx:run-commands",
       "options": {

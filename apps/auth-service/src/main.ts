@@ -7,7 +7,9 @@ import { AppModule } from "./app.module";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const port = Number(process.env.AUTH_SERVICE_PORT ?? 3001);
+  const port = Number(
+    process.env.PORT ?? process.env.AUTH_SERVICE_PORT ?? 3001,
+  );
   await app.listen(port);
   console.log(`auth-service listening on http://localhost:${port}`);
 }

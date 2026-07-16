@@ -44,6 +44,9 @@ jobs:
       - name: Typecheck
         run: yarn typecheck
 
+      - name: Build Nest services
+        run: yarn build:services
+
       - name: Test
         run: yarn test:coverage
 
@@ -56,16 +59,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-web:
-    name: Deploy web to Vercel
+  deploy-be:
+    name: Deploy backend to Railway
     needs: validate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
+      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      RAILWAY_ENVIRONMENT: ${{ secrets.RAILWAY_ENVIRONMENT }}
 
     steps:
       - name: Checkout
@@ -77,10 +79,54 @@ jobs:
           node-version: 22
           cache: yarn
 
-      - name: Check Vercel token
+      - name: Check Railway token
+        run: |
+          if [ -z "$RAILWAY_TOKEN" ]; then
+            echo "::error::Missing RAILWAY_TOKEN GitHub secret."
+            exit 1
+          fi
+
+      - name: Install Railway CLI
+        run: npm i -g @railway/cli
+
+      - name: Deploy Nest services
+        run: yarn deploy:be
+
+  deploy-web:
+    name: Deploy web to Vercel
+    needs: [validate, deploy-be]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_SCOPE: ${{ secrets.VERCEL_SCOPE }}
+      API_GATEWAY_URL: ${{ secrets.API_GATEWAY_URL }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: yarn
+
+      - name: Check secrets
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
             echo "::error::Missing VERCEL_TOKEN GitHub secret."
+            exit 1
+          fi
+          if [ -z "$API_GATEWAY_URL" ]; then
+            echo "::error::Missing API_GATEWAY_URL GitHub secret."
+            exit 1
+          fi
+          if [ -z "$SESSION_SECRET" ]; then
+            echo "::error::Missing SESSION_SECRET GitHub secret."
             exit 1
           fi
 
@@ -101,6 +147,10 @@ jobs:
             args+=(--scope "$VERCEL_SCOPE")
           fi
           yarn vercel "${args[@]}"
+
+      - name: Upsert API_GATEWAY_URL and SESSION_SECRET
+        if: env.VERCEL_PROJECT_ID != ''
+        run: node scripts/upsert-vercel-gateway-env.mjs
 
       - name: Pull Vercel environment
         run: yarn vercel pull --yes --environment=production

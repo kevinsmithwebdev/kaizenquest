@@ -1,0 +1,10 @@
+# Shared defaults — override per service in Railway dashboard or service railway.toml
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile.service"
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

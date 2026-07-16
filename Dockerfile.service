@@ -1,17 +1,42 @@
-# Node 22 Alpine NestJS service image (generic)
+# Production NestJS service image (generic for auth/goals/analytics/gateway)
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json yarn.lock ./
 COPY apps ./apps
 COPY libs ./libs
 COPY nx.json tsconfig.base.json tsconfig.json ./
+COPY scripts/build-service.mjs ./scripts/build-service.mjs
 RUN yarn install --frozen-lockfile --production=false
+
+FROM deps AS build
+ARG SERVICE=auth-service
+ENV SERVICE=$SERVICE
+ENV AUTH_DATABASE_URL=postgresql://build:build@localhost:5432/build
+ENV GOALS_DATABASE_URL=postgresql://build:build@localhost:5432/build
+ENV ANALYTICS_DATABASE_URL=postgresql://build:build@localhost:5432/build
+# Generate Prisma client only for DB-backed services
+RUN if [ "$SERVICE" = "auth-service" ]; then \
+      yarn prisma generate --config apps/auth-service/prisma.config.ts; \
+    elif [ "$SERVICE" = "goals-service" ]; then \
+      yarn prisma generate --config apps/goals-service/prisma.config.ts; \
+    elif [ "$SERVICE" = "analytics-service" ]; then \
+      yarn prisma generate --config apps/analytics-service/prisma.config.ts; \
+    fi
+RUN node scripts/build-service.mjs $SERVICE
 
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
-COPY --from=deps /app /app
-# Usage: docker build --build-arg SERVICE=auth-service
 ARG SERVICE=auth-service
 ENV SERVICE=$SERVICE
-CMD yarn nx serve $SERVICE
+
+COPY --from=build /app/package.json /app/yarn.lock ./
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/apps ./apps
+COPY --from=build /app/libs ./libs
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/nx.json /app/tsconfig.base.json /app/tsconfig.json ./
+
+# Release migrations (DB services): set Railway release command to
+#   yarn prisma migrate deploy --config apps/$SERVICE/prisma.config.ts
+CMD node dist/apps/$SERVICE/main.mjs
