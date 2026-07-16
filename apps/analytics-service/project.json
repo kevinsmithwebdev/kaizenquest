@@ -1,0 +1,34 @@
+{
+  "name": "analytics-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/analytics-service/src",
+  "projectType": "application",
+  "tags": ["scope:analytics", "type:app"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsx watch apps/analytics-service/src/main.ts"
+      }
+    },
+    "prisma-generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "prisma generate --config apps/analytics-service/prisma.config.ts"
+      }
+    },
+    "prisma-migrate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/analytics-service",
+        "command": "prisma migrate dev --config prisma.config.ts --name init"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --noEmit -p apps/analytics-service/tsconfig.app.json"
+      }
+    }
+  }
+}

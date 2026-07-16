@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model UserActivityDay {
+  id         String   @id @default(cuid())
+  userId     String
+  date       DateTime @db.Date
+  eventCount Int
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model UserStreakSnapshot {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  currentStreak Int
+  bestStreak    Int
+  updatedAt     DateTime @updatedAt
+}
