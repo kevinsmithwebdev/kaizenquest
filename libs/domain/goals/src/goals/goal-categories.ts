@@ -13,20 +13,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-export const GOAL_CATEGORIES = [
-  "health",
-  "spiritual",
-  "learning",
-  "creative",
-  "work",
-  "productivity",
-  "financial",
-  "social",
-  "hobby",
-  "charity",
-] as const;
+import { GOAL_CATEGORIES, type GoalCategory } from "@kaizen/shared-contracts";
 
-export type GoalCategory = (typeof GOAL_CATEGORIES)[number];
+export { GOAL_CATEGORIES, type GoalCategory };
 
 /** Icon color for uncategorized goals. */
 export const DEFAULT_GOAL_CATEGORY_COLOR = "oklch(0.55 0.02 260)";

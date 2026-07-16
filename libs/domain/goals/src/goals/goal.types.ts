@@ -1,4 +1,4 @@
-import type { GoalCategory } from "./goal-categories";
+import type { GoalCategory } from "@kaizen/shared-contracts";
 import type { GOAL_PERIODS, GOAL_TYPES } from "./goal.constants";
 
 export type GoalPeriod = (typeof GOAL_PERIODS)[number];

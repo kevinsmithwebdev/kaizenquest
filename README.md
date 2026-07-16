@@ -77,7 +77,7 @@ Connection strings are documented in [`.env.example`](.env.example). The web app
 ```
 apps/web/          Next.js frontend (current product)
 libs/shared/utils/ Shared date and Zod helpers
-libs/shared/contracts/  API/Kafka contracts (Phase 2)
+libs/shared/contracts/  Zod API + Kafka contracts (portable)
 libs/domain/goals/ Pure goal, streak, and calendar logic
 libs/infra/        Docker Compose Nx targets
 ```

@@ -6,7 +6,9 @@
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "dependencies": {
+    "@kaizen/shared-contracts": "0.0.1",
     "@kaizen/shared-utils": "0.0.1",
+    "lucide-react": "^1.21.0",
     "zod": "^4.4.3"
   }
 }
