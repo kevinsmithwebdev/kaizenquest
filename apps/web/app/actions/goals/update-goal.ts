@@ -2,19 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isUnauthorizedError } from "@/lib/auth";
+import { createServerApiClient } from "@/lib/api";
 import { routes } from "@/lib/navigation";
-import { prisma } from "@/lib/prisma";
+import { mapGoalFromApi } from "@/lib/goals/map-goal-from-api";
 import {
-  goalWithEventsInclude,
-  mapGoalFromPrisma,
   requireCurrentUser,
-  toPrismaGoalUpdateData,
   updateGoalSchema,
-  validateGoalTarget,
   type UpdateGoalInput,
 } from "@/lib/goals";
 import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
+import { ApiError } from "@kaizen/shared-api-client";
 
 import type { GoalMutationResult } from "./goal.types";
 
@@ -22,7 +19,7 @@ export async function updateGoal(
   input: UpdateGoalInput,
 ): Promise<GoalMutationResult> {
   try {
-    const user = await requireCurrentUser();
+    await requireCurrentUser();
     const parsed = updateGoalSchema.safeParse(input);
 
     if (!parsed.success) {
@@ -32,51 +29,18 @@ export async function updateGoal(
       };
     }
 
-    const existing = await prisma.goal.findFirst({
-      where: { id: parsed.data.id, userId: user.id },
-    });
-
-    if (!existing) {
-      return { error: "Goal not found", goal: null };
-    }
-
-    const targetParsed = validateGoalTarget(existing.type, parsed.data.target);
-
-    if (!targetParsed.success) {
-      return {
-        error: getFirstZodIssueMessage(targetParsed.error, "Invalid target"),
-        goal: null,
-      };
-    }
-
-    await prisma.goal.update({
-      where: { id: parsed.data.id },
-      data: toPrismaGoalUpdateData(
-        { ...parsed.data, target: targetParsed.data },
-        existing.type,
-      ),
-    });
-
-    const updated = await prisma.goal.findFirst({
-      where: { id: parsed.data.id, userId: user.id },
-      include: goalWithEventsInclude,
-    });
-
-    if (!updated) {
-      return { error: "Goal not found", goal: null };
-    }
-
+    const api = createServerApiClient();
+    const updated = await api.updateGoal(parsed.data.id, parsed.data);
     revalidatePath(routes.dashboard);
 
     return {
       error: null,
-      goal: mapGoalFromPrisma(updated, updated.events),
+      goal: mapGoalFromApi(updated as never),
     };
   } catch (error) {
-    if (isUnauthorizedError(error)) {
-      return { error: "Unauthorized", goal: null };
+    if (error instanceof ApiError) {
+      return { error: error.message, goal: null };
     }
-
     throw error;
   }
 }

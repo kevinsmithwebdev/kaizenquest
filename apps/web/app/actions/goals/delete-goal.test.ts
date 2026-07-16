@@ -3,16 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
   revalidatePath: vi.fn(),
-  prisma: {
-    goal: {
-      findFirst: vi.fn(),
-      delete: vi.fn(),
-    },
-    goalEvent: {
-      deleteMany: vi.fn(),
-    },
-    $transaction: vi.fn(),
-  },
+  createGoal: vi.fn(),
+  updateGoal: vi.fn(),
+  deleteGoal: vi.fn(),
+  addGoalEvent: vi.fn(),
+  listGoals: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -27,30 +22,24 @@ vi.mock("@/lib/auth", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  createServerApiClient: () => ({
+    createGoal: mocks.createGoal,
+    updateGoal: mocks.updateGoal,
+    deleteGoal: mocks.deleteGoal,
+    addGoalEvent: mocks.addGoalEvent,
+    listGoals: mocks.listGoals,
+  }),
 }));
 
+import { ApiError } from "@kaizen/shared-api-client";
+
 import { mockUser } from "@/lib/auth/test-helpers";
+import { UnauthorizedError } from "@/lib/auth";
 
 import { deleteGoal } from "./delete-goal";
 
 const authUser = mockUser;
-
-const existingGoal = {
-  id: "goal-1",
-  userId: "user-1",
-  name: "Meditate",
-  description: "",
-  period: "WEEK" as const,
-  type: "OCCURANCE" as const,
-  targetOccurrences: 5,
-  targetDuration: null,
-  targetAmount: null,
-  category: null,
-  createdAt: new Date("2026-06-29T00:00:00.000Z"),
-  updatedAt: new Date("2026-06-29T00:00:00.000Z"),
-};
 
 describe("deleteGoal", () => {
   afterEach(() => {
@@ -60,44 +49,30 @@ describe("deleteGoal", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getCurrentUser.mockResolvedValue(authUser);
-    mocks.prisma.goal.findFirst.mockResolvedValue(existingGoal);
-    mocks.prisma.goalEvent.deleteMany.mockResolvedValue({ count: 2 });
-    mocks.prisma.goal.delete.mockResolvedValue(existingGoal);
-    mocks.prisma.$transaction.mockImplementation((operations) =>
-      Promise.all(operations),
-    );
+    mocks.deleteGoal.mockResolvedValue(undefined);
   });
 
-  it("returns not found when the goal does not exist for the user", async () => {
-    mocks.prisma.goal.findFirst.mockResolvedValue(null);
+  it("returns not found when the API reports the goal is missing", async () => {
+    mocks.deleteGoal.mockRejectedValue(new ApiError("Goal not found", 404));
 
     const result = await deleteGoal("goal-1");
 
     expect(result).toEqual({ error: "Goal not found", goal: null });
-    expect(mocks.prisma.$transaction).not.toHaveBeenCalled();
   });
 
-  it("deletes a goal and its events for the current user", async () => {
+  it("deletes a goal for the current user", async () => {
     const result = await deleteGoal("goal-1");
 
-    expect(mocks.prisma.goalEvent.deleteMany).toHaveBeenCalledWith({
-      where: { goalId: "goal-1" },
-    });
-    expect(mocks.prisma.goal.delete).toHaveBeenCalledWith({
-      where: { id: "goal-1" },
-    });
-    expect(mocks.prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(mocks.deleteGoal).toHaveBeenCalledWith("goal-1");
     expect(result).toEqual({ error: null, goal: null });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 
-  it("returns unauthorized when there is no current user", async () => {
+  it("throws unauthorized when there is no current user", async () => {
     mocks.getCurrentUser.mockResolvedValue(null);
 
-    const result = await deleteGoal("goal-1");
-
-    expect(result).toEqual({ error: "Unauthorized", goal: null });
-    expect(mocks.prisma.$transaction).not.toHaveBeenCalled();
+    await expect(deleteGoal("goal-1")).rejects.toThrow(UnauthorizedError);
+    expect(mocks.deleteGoal).not.toHaveBeenCalled();
   });
 
   it("returns a validation error for an empty goal id", async () => {
@@ -105,6 +80,6 @@ describe("deleteGoal", () => {
 
     expect(result.error).toBe("Goal ID is required");
     expect(result.goal).toBeNull();
-    expect(mocks.prisma.$transaction).not.toHaveBeenCalled();
+    expect(mocks.deleteGoal).not.toHaveBeenCalled();
   });
 });

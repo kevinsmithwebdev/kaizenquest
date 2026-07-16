@@ -1,38 +1,22 @@
-import { prisma } from "@/lib/prisma";
-
-import { mapGoalFromPrisma } from "./map-goal";
+import { createServerApiClient } from "@/lib/api";
 import type { Goal } from "@kaizen/domain-goals";
 
-export const goalWithEventsInclude = {
-  events: {
-    orderBy: {
-      occurredAt: "desc" as const,
-    },
-  },
-};
+import { mapGoalFromApi } from "./map-goal-from-api";
 
-export const listGoalsForUser = async (userId: string): Promise<Goal[]> => {
-  const goals = await prisma.goal.findMany({
-    where: { userId },
-    include: goalWithEventsInclude,
-    orderBy: { updatedAt: "desc" },
-  });
-
-  return goals.map((goal) => mapGoalFromPrisma(goal, goal.events));
+export const listGoalsForUser = async (_userId: string): Promise<Goal[]> => {
+  const api = createServerApiClient();
+  const goals = (await api.listGoals()) as Parameters<typeof mapGoalFromApi>[0][];
+  return goals.map(mapGoalFromApi);
 };
 
 export const getGoalForUser = async (
-  goalId: string,
   userId: string,
+  goalId: string,
 ): Promise<Goal | null> => {
-  const goal = await prisma.goal.findFirst({
-    where: { id: goalId, userId },
-    include: goalWithEventsInclude,
-  });
+  const goals = await listGoalsForUser(userId);
+  return goals.find((goal) => goal.id === goalId) ?? null;
+};
 
-  if (!goal) {
-    return null;
-  }
-
-  return mapGoalFromPrisma(goal, goal.events);
+export const goalWithEventsInclude = {
+  events: { orderBy: { occurredAt: "asc" as const } },
 };

@@ -1,16 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { authUserSelect } from "./auth.constants";
 import { mockUser } from "./test-helpers";
 
 const mocks = vi.hoisted(() => ({
   getAuthTokenFromCookie: vi.fn(),
   verifyAuthToken: vi.fn(),
-  prisma: {
-    user: {
-      findUnique: vi.fn(),
-    },
-  },
+  me: vi.fn(),
 }));
 
 vi.mock("./get-auth-token-from-cookie", () => ({
@@ -21,8 +16,10 @@ vi.mock("@/lib/jwt", () => ({
   verifyAuthToken: mocks.verifyAuthToken,
 }));
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  createServerApiClient: () => ({
+    me: mocks.me,
+  }),
 }));
 
 import { getCurrentUser } from "./get-current-user";
@@ -44,25 +41,27 @@ describe("getCurrentUser", () => {
     mocks.verifyAuthToken.mockResolvedValue(null);
 
     await expect(getCurrentUser()).resolves.toBeNull();
-    expect(mocks.prisma.user.findUnique).not.toHaveBeenCalled();
+    expect(mocks.me).not.toHaveBeenCalled();
   });
 
   it("returns null when the user does not exist", async () => {
     mocks.getAuthTokenFromCookie.mockResolvedValue("valid-token");
     mocks.verifyAuthToken.mockResolvedValue("user-1");
-    mocks.prisma.user.findUnique.mockResolvedValue(null);
+    mocks.me.mockRejectedValue(new Error("not found"));
 
     await expect(getCurrentUser()).resolves.toBeNull();
-    expect(mocks.prisma.user.findUnique).toHaveBeenCalledWith({
-      where: { id: "user-1" },
-      select: authUserSelect,
-    });
   });
 
   it("returns the authenticated user", async () => {
     mocks.getAuthTokenFromCookie.mockResolvedValue("valid-token");
     mocks.verifyAuthToken.mockResolvedValue("user-1");
-    mocks.prisma.user.findUnique.mockResolvedValue(mockUser);
+    mocks.me.mockResolvedValue({
+      id: mockUser.id,
+      name: mockUser.name,
+      email: mockUser.email,
+      createdAt: mockUser.createdAt.toISOString(),
+      updatedAt: mockUser.updatedAt.toISOString(),
+    });
 
     await expect(getCurrentUser()).resolves.toEqual(mockUser);
   });

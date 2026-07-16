@@ -7,6 +7,7 @@
     "libs/shared/utils",
     "libs/shared/contracts",
     "libs/shared/nestjs",
+    "libs/shared/api-client",
     "libs/domain/goals",
     "libs/domain/auth"
   ],
@@ -33,7 +34,11 @@
     "infra:logs": "nx run infra:logs",
     "infra:ps": "nx run infra:ps",
     "auth:serve": "nx serve auth-service",
-    "auth:migrate": "nx run auth-service:prisma-migrate"
+    "auth:migrate": "nx run auth-service:prisma-migrate",
+    "goals:serve": "nx serve goals-service",
+    "gateway:serve": "nx serve api-gateway",
+    "analytics:serve": "nx serve analytics-service",
+    "services:serve": "nx run-many -t serve -p auth-service,goals-service,analytics-service,api-gateway"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

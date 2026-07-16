@@ -1,19 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { Prisma } from "@/lib/generated/prisma/client";
-
 import { signUpSchema } from "./auth.schemas";
 import { createFormData, expectRedirect, RedirectError } from "./test-helpers";
 
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
-  hashPassword: vi.fn(),
-  setAuthCookieForUser: vi.fn(),
-  prisma: {
-    user: {
-      create: vi.fn(),
-    },
-  },
+  setAuthCookie: vi.fn(),
+  fetch: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -23,30 +16,26 @@ vi.mock("next/navigation", () => ({
   },
 }));
 
-vi.mock("@/lib/password", () => ({
-  hashPassword: mocks.hashPassword,
-}));
-
 vi.mock("@/lib/auth", () => ({
-  setAuthCookieForUser: mocks.setAuthCookieForUser,
+  setAuthCookie: mocks.setAuthCookie,
 }));
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  getApiGatewayUrl: () => "http://localhost:3003",
 }));
 
 import { signUp } from "./sign-up";
 
 describe("signUp", () => {
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.hashPassword.mockResolvedValue("hashed-password");
-    mocks.prisma.user.create.mockResolvedValue({ id: "user-1" });
-    mocks.setAuthCookieForUser.mockResolvedValue(undefined);
+    mocks.setAuthCookie.mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", mocks.fetch);
   });
 
   it("returns a validation error for invalid input", async () => {
@@ -77,12 +66,12 @@ describe("signUp", () => {
   });
 
   it("returns an error when the email already exists", async () => {
-    mocks.prisma.user.create.mockRejectedValue(
-      new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
-        code: "P2002",
-        clientVersion: "7.8.0",
+    mocks.fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        message: "An account with this email already exists.",
       }),
-    );
+    });
 
     const result = await signUp(
       { error: null },
@@ -96,32 +85,29 @@ describe("signUp", () => {
     expect(result).toEqual({
       error: "An account with this email already exists.",
     });
-    expect(mocks.hashPassword).toHaveBeenCalledWith("password1");
-    expect(mocks.prisma.user.create).toHaveBeenCalledWith({
-      data: {
-        name: "Ada",
-        email: "ada@example.com",
-        passwordHash: "hashed-password",
-      },
-    });
   });
 
-  it("rethrows unexpected database errors", async () => {
-    mocks.prisma.user.create.mockRejectedValue(new Error("database down"));
+  it("returns an error when auth service is unreachable", async () => {
+    mocks.fetch.mockRejectedValue(new Error("offline"));
 
-    await expect(
-      signUp(
-        { error: null },
-        createFormData({
-          name: "Ada",
-          email: "ada@example.com",
-          password: "password1",
-        }),
-      ),
-    ).rejects.toThrow("database down");
+    const result = await signUp(
+      { error: null },
+      createFormData({
+        name: "Ada",
+        email: "ada@example.com",
+        password: "password1",
+      }),
+    );
+
+    expect(result).toEqual({ error: "Unable to reach auth service." });
   });
 
   it("creates the user, signs in, and redirects to the dashboard on success", async () => {
+    mocks.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: "jwt-token", user: { id: "user-1" } }),
+    });
+
     await expectRedirect(
       signUp(
         { error: null },
@@ -134,14 +120,7 @@ describe("signUp", () => {
       "/dashboard",
     );
 
-    expect(mocks.prisma.user.create).toHaveBeenCalledWith({
-      data: {
-        name: "Ada",
-        email: "ada@example.com",
-        passwordHash: "hashed-password",
-      },
-    });
-    expect(mocks.setAuthCookieForUser).toHaveBeenCalledWith("user-1");
+    expect(mocks.setAuthCookie).toHaveBeenCalledWith("jwt-token");
     expect(mocks.redirect).toHaveBeenCalledWith("/dashboard");
   });
 });

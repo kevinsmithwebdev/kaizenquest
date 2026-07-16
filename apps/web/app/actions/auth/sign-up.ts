@@ -2,12 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-import { setAuthCookieForUser } from "@/lib/auth";
-import { hashPassword } from "@/lib/password";
-import { prisma } from "@/lib/prisma";
+import { setAuthCookie } from "@/lib/auth";
+import { getApiGatewayUrl } from "@/lib/api";
 import { routes } from "@/lib/navigation";
 import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
-import { Prisma } from "@/lib/generated/prisma/client";
 
 import { signUpSchema } from "./auth.schemas";
 import type { SignUpState } from "./auth.types";
@@ -23,39 +21,28 @@ export async function signUp(
   });
 
   if (!parsed.success) {
-    return {
-      error: getFirstZodIssueMessage(parsed.error),
-    };
+    return { error: getFirstZodIssueMessage(parsed.error) };
   }
-
-  const { name, password } = parsed.data;
-  const email = parsed.data.email.toLowerCase();
-
-  let userId: string;
 
   try {
-    const passwordHash = await hashPassword(password);
-
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-      },
+    const response = await fetch(`${getApiGatewayUrl()}/auth/sign-up`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parsed.data),
     });
-
-    userId = user.id;
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return { error: "An account with this email already exists." };
+    const body = await response.json();
+    if (!response.ok) {
+      return {
+        error:
+          typeof body?.message === "string"
+            ? body.message
+            : "Unable to create account.",
+      };
     }
-    throw error;
+    await setAuthCookie(body.accessToken as string);
+  } catch {
+    return { error: "Unable to reach auth service." };
   }
-
-  await setAuthCookieForUser(userId);
 
   redirect(routes.dashboard);
 }

@@ -3,11 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
   revalidatePath: vi.fn(),
-  prisma: {
-    goal: {
-      create: vi.fn(),
-    },
-  },
+  createGoal: vi.fn(),
+  updateGoal: vi.fn(),
+  deleteGoal: vi.fn(),
+  addGoalEvent: vi.fn(),
+  listGoals: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -22,29 +22,35 @@ vi.mock("@/lib/auth", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  createServerApiClient: () => ({
+    createGoal: mocks.createGoal,
+    updateGoal: mocks.updateGoal,
+    deleteGoal: mocks.deleteGoal,
+    addGoalEvent: mocks.addGoalEvent,
+    listGoals: mocks.listGoals,
+  }),
 }));
 
 import { mockUser } from "@/lib/auth/test-helpers";
+import { UnauthorizedError } from "@/lib/auth";
 
 import { createGoal } from "./create-goal";
 
 const authUser = mockUser;
 
-const prismaOccuranceGoal = {
+const apiOccuranceGoal = {
   id: "goal-1",
   userId: "user-1",
   name: "Meditate",
   description: "Daily practice",
   period: "WEEK" as const,
   type: "OCCURANCE" as const,
-  targetOccurrences: 5,
-  targetDuration: null,
-  targetAmount: null,
+  target: 5,
   category: null,
-  createdAt: new Date("2026-06-29T00:00:00.000Z"),
-  updatedAt: new Date("2026-06-29T00:00:00.000Z"),
+  createdAt: "2026-06-29T00:00:00.000Z",
+  updatedAt: "2026-06-29T00:00:00.000Z",
+  history: [],
 };
 
 describe("createGoal", () => {
@@ -55,7 +61,7 @@ describe("createGoal", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getCurrentUser.mockResolvedValue(authUser);
-    mocks.prisma.goal.create.mockResolvedValue(prismaOccuranceGoal);
+    mocks.createGoal.mockResolvedValue(apiOccuranceGoal);
   });
 
   it("returns a validation error for invalid input", async () => {
@@ -68,22 +74,22 @@ describe("createGoal", () => {
     });
 
     expect(result).toEqual({ error: "Name is required", goal: null });
-    expect(mocks.prisma.goal.create).not.toHaveBeenCalled();
+    expect(mocks.createGoal).not.toHaveBeenCalled();
   });
 
-  it("returns unauthorized when there is no current user", async () => {
+  it("throws unauthorized when there is no current user", async () => {
     mocks.getCurrentUser.mockResolvedValue(null);
 
-    const result = await createGoal({
-      name: "Meditate",
-      description: "",
-      period: "WEEK",
-      type: "OCCURANCE",
-      target: 5,
-    });
-
-    expect(result).toEqual({ error: "Unauthorized", goal: null });
-    expect(mocks.prisma.goal.create).not.toHaveBeenCalled();
+    await expect(
+      createGoal({
+        name: "Meditate",
+        description: "",
+        period: "WEEK",
+        type: "OCCURANCE",
+        target: 5,
+      }),
+    ).rejects.toThrow(UnauthorizedError);
+    expect(mocks.createGoal).not.toHaveBeenCalled();
   });
 
   it("creates an OCCURANCE goal", async () => {
@@ -95,18 +101,12 @@ describe("createGoal", () => {
       target: 5,
     });
 
-    expect(mocks.prisma.goal.create).toHaveBeenCalledWith({
-      data: {
-        user: { connect: { id: "user-1" } },
-        name: "Meditate",
-        description: "Daily practice",
-        category: null,
-        period: "WEEK",
-        type: "OCCURANCE",
-        targetOccurrences: 5,
-        targetDuration: null,
-        targetAmount: null,
-      },
+    expect(mocks.createGoal).toHaveBeenCalledWith({
+      name: "Meditate",
+      description: "Daily practice",
+      period: "WEEK",
+      type: "OCCURANCE",
+      target: 5,
     });
     expect(result.error).toBeNull();
     expect(result.goal).toMatchObject({
@@ -116,17 +116,18 @@ describe("createGoal", () => {
       target: 5,
       history: [],
     });
+    expect(result.goal?.createdAt).toEqual(
+      new Date("2026-06-29T00:00:00.000Z"),
+    );
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 
   it("creates a TIME goal", async () => {
-    mocks.prisma.goal.create.mockResolvedValue({
-      ...prismaOccuranceGoal,
+    mocks.createGoal.mockResolvedValue({
+      ...apiOccuranceGoal,
       id: "goal-2",
       type: "TIME",
-      targetOccurrences: null,
-      targetDuration: "PT2H",
-      targetAmount: null,
+      target: "PT2H",
     });
 
     const result = await createGoal({
@@ -137,18 +138,12 @@ describe("createGoal", () => {
       target: "PT2H",
     });
 
-    expect(mocks.prisma.goal.create).toHaveBeenCalledWith({
-      data: {
-        user: { connect: { id: "user-1" } },
-        name: "Read",
-        description: "",
-        category: null,
-        period: "MONTH",
-        type: "TIME",
-        targetOccurrences: null,
-        targetDuration: "PT2H",
-        targetAmount: null,
-      },
+    expect(mocks.createGoal).toHaveBeenCalledWith({
+      name: "Read",
+      description: "",
+      period: "MONTH",
+      type: "TIME",
+      target: "PT2H",
     });
     expect(result.error).toBeNull();
     expect(result.goal).toMatchObject({

@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     "@kaizen/domain-goals",
     "@kaizen/shared-utils",
     "@kaizen/shared-contracts",
+    "@kaizen/shared-api-client",
   ],
   turbopack: {
     root: workspaceRoot,

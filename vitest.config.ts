@@ -22,6 +22,10 @@ export default defineConfig({
         workspaceRoot,
         "libs/domain/goals/src/index.ts",
       ),
+      "@kaizen/shared-api-client": path.join(
+        workspaceRoot,
+        "libs/shared/api-client/src/index.ts",
+      ),
     },
   },
   test: {

@@ -1,42 +1,42 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  prisma: {
-    goal: {
-      findMany: vi.fn(),
-      findFirst: vi.fn(),
-    },
-  },
+  createGoal: vi.fn(),
+  updateGoal: vi.fn(),
+  deleteGoal: vi.fn(),
+  addGoalEvent: vi.fn(),
+  listGoals: vi.fn(),
 }));
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  createServerApiClient: () => ({
+    createGoal: mocks.createGoal,
+    updateGoal: mocks.updateGoal,
+    deleteGoal: mocks.deleteGoal,
+    addGoalEvent: mocks.addGoalEvent,
+    listGoals: mocks.listGoals,
+  }),
 }));
 
 import { getGoalForUser, listGoalsForUser } from "./queries";
 
-const prismaOccuranceGoal = {
+const apiOccuranceGoal = {
   id: "goal-1",
   userId: "user-1",
   name: "Meditate",
   description: "Daily practice",
   period: "WEEK" as const,
   type: "OCCURANCE" as const,
-  targetOccurrences: 5,
-  targetDuration: null,
-  targetAmount: null,
+  target: 5,
   category: null,
-  createdAt: new Date("2026-06-29T00:00:00.000Z"),
-  updatedAt: new Date("2026-06-29T00:00:00.000Z"),
-  events: [
+  createdAt: "2026-06-29T00:00:00.000Z",
+  updatedAt: "2026-06-29T00:00:00.000Z",
+  history: [
     {
       id: "event-1",
-      goalId: "goal-1",
       type: "OCCURANCE" as const,
       occurrences: 1,
-      duration: null,
-      amount: null,
-      occurredAt: new Date("2026-06-29T12:00:00.000Z"),
+      occurredAt: "2026-06-29T12:00:00.000Z",
     },
   ],
 };
@@ -48,21 +48,13 @@ describe("listGoalsForUser", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.prisma.goal.findMany.mockResolvedValue([prismaOccuranceGoal]);
+    mocks.listGoals.mockResolvedValue([apiOccuranceGoal]);
   });
 
   it("returns mapped goals with history for the user", async () => {
     const goals = await listGoalsForUser("user-1");
 
-    expect(mocks.prisma.goal.findMany).toHaveBeenCalledWith({
-      where: { userId: "user-1" },
-      include: {
-        events: {
-          orderBy: { occurredAt: "desc" },
-        },
-      },
-      orderBy: { updatedAt: "desc" },
-    });
+    expect(mocks.listGoals).toHaveBeenCalledWith();
     expect(goals).toHaveLength(1);
     expect(goals[0]).toMatchObject({
       id: "goal-1",
@@ -76,6 +68,10 @@ describe("listGoalsForUser", () => {
         },
       ],
     });
+    expect(goals[0]?.createdAt).toEqual(new Date("2026-06-29T00:00:00.000Z"));
+    expect(goals[0]?.history[0]?.occurredAt).toEqual(
+      new Date("2026-06-29T12:00:00.000Z"),
+    );
   });
 });
 
@@ -86,27 +82,20 @@ describe("getGoalForUser", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.prisma.goal.findFirst.mockResolvedValue(prismaOccuranceGoal);
+    mocks.listGoals.mockResolvedValue([apiOccuranceGoal]);
   });
 
-  it("returns null when the goal is not owned by the user", async () => {
-    mocks.prisma.goal.findFirst.mockResolvedValue(null);
+  it("returns null when the goal is not in the listed goals", async () => {
+    mocks.listGoals.mockResolvedValue([]);
 
-    const goal = await getGoalForUser("goal-1", "user-2");
+    const goal = await getGoalForUser("user-2", "goal-1");
 
     expect(goal).toBeNull();
-    expect(mocks.prisma.goal.findFirst).toHaveBeenCalledWith({
-      where: { id: "goal-1", userId: "user-2" },
-      include: {
-        events: {
-          orderBy: { occurredAt: "desc" },
-        },
-      },
-    });
+    expect(mocks.listGoals).toHaveBeenCalledWith();
   });
 
   it("returns a mapped goal when found", async () => {
-    const goal = await getGoalForUser("goal-1", "user-1");
+    const goal = await getGoalForUser("user-1", "goal-1");
 
     expect(goal).toMatchObject({
       id: "goal-1",

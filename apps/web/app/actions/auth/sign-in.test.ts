@@ -5,13 +5,8 @@ import { createFormData, expectRedirect, RedirectError } from "./test-helpers";
 
 const mocks = vi.hoisted(() => ({
   redirect: vi.fn(),
-  setAuthCookieForUser: vi.fn(),
-  verifyPassword: vi.fn(),
-  prisma: {
-    user: {
-      findUnique: vi.fn(),
-    },
-  },
+  setAuthCookie: vi.fn(),
+  fetch: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -22,28 +17,25 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/lib/auth", () => ({
-  setAuthCookieForUser: mocks.setAuthCookieForUser,
+  setAuthCookie: mocks.setAuthCookie,
 }));
 
-vi.mock("@/lib/password", () => ({
-  verifyPassword: mocks.verifyPassword,
-}));
-
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  getApiGatewayUrl: () => "http://localhost:3003",
 }));
 
 import { signIn } from "./sign-in";
 
 describe("signIn", () => {
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.verifyPassword.mockResolvedValue(true);
-    mocks.setAuthCookieForUser.mockResolvedValue(undefined);
+    mocks.setAuthCookie.mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", mocks.fetch);
   });
 
   it("returns a validation error for invalid input", async () => {
@@ -69,44 +61,35 @@ describe("signIn", () => {
     expect(result).toEqual({ error: "Invalid input" });
   });
 
-  it("returns an error when the user does not exist", async () => {
-    mocks.prisma.user.findUnique.mockResolvedValue(null);
+  it("returns an error when auth service rejects credentials", async () => {
+    mocks.fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({ message: "Invalid email or password." }),
+    });
 
     const result = await signIn(
       { error: null },
-      createFormData({ email: "Ada@Example.com", password: "password1" }),
+      createFormData({ email: "ada@example.com", password: "wrong" }),
     );
 
     expect(result).toEqual({ error: "Invalid email or password." });
-    expect(mocks.prisma.user.findUnique).toHaveBeenCalledWith({
-      where: { email: "ada@example.com" },
-    });
-    expect(mocks.verifyPassword).not.toHaveBeenCalled();
   });
 
-  it("returns an error when the password is invalid", async () => {
-    mocks.prisma.user.findUnique.mockResolvedValue({
-      id: "user-1",
-      passwordHash: "hashed-password",
-    });
-    mocks.verifyPassword.mockResolvedValue(false);
+  it("returns an error when auth service is unreachable", async () => {
+    mocks.fetch.mockRejectedValue(new Error("offline"));
 
     const result = await signIn(
       { error: null },
-      createFormData({ email: "ada@example.com", password: "wrong-password" }),
+      createFormData({ email: "ada@example.com", password: "password1" }),
     );
 
-    expect(result).toEqual({ error: "Invalid email or password." });
-    expect(mocks.verifyPassword).toHaveBeenCalledWith(
-      "wrong-password",
-      "hashed-password",
-    );
+    expect(result).toEqual({ error: "Unable to reach auth service." });
   });
 
   it("sets the auth cookie and redirects to the dashboard on success", async () => {
-    mocks.prisma.user.findUnique.mockResolvedValue({
-      id: "user-1",
-      passwordHash: "hashed-password",
+    mocks.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ accessToken: "jwt-token", user: { id: "user-1" } }),
     });
 
     await expectRedirect(
@@ -117,7 +100,7 @@ describe("signIn", () => {
       "/dashboard",
     );
 
-    expect(mocks.setAuthCookieForUser).toHaveBeenCalledWith("user-1");
+    expect(mocks.setAuthCookie).toHaveBeenCalledWith("jwt-token");
     expect(mocks.redirect).toHaveBeenCalledWith("/dashboard");
   });
 });

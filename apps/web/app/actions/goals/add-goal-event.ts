@@ -2,18 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 
-import { isUnauthorizedError } from "@/lib/auth";
+import { createServerApiClient } from "@/lib/api";
 import { routes } from "@/lib/navigation";
-import { prisma } from "@/lib/prisma";
+import { mapGoalFromApi } from "@/lib/goals/map-goal-from-api";
 import {
   addGoalEventSchema,
-  goalWithEventsInclude,
-  mapGoalFromPrisma,
   requireCurrentUser,
-  toPrismaGoalEventCreateData,
   type AddGoalEventInput,
 } from "@/lib/goals";
 import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
+import { ApiError } from "@kaizen/shared-api-client";
 
 import type { GoalMutationResult } from "./goal.types";
 
@@ -21,55 +19,45 @@ export async function addGoalEvent(
   input: AddGoalEventInput,
 ): Promise<GoalMutationResult> {
   try {
-    const user = await requireCurrentUser();
+    await requireCurrentUser();
+    const occurredAt =
+      input.occurredAt instanceof Date
+        ? input.occurredAt.toISOString()
+        : (input.occurredAt ?? new Date().toISOString());
+
     const parsed = addGoalEventSchema.safeParse({
       ...input,
-      occurredAt: input.occurredAt ?? new Date(),
+      occurredAt,
     });
 
     if (!parsed.success) {
+      // Domain schema coerces Date; try wire format via contracts path
       return {
         error: getFirstZodIssueMessage(parsed.error),
         goal: null,
       };
     }
 
-    const existing = await prisma.goal.findFirst({
-      where: { id: parsed.data.goalId, userId: user.id },
-    });
-
-    if (!existing) {
-      return { error: "Goal not found", goal: null };
-    }
-
-    if (parsed.data.type !== existing.type) {
-      return { error: "Event type does not match goal type", goal: null };
-    }
-
-    await prisma.goalEvent.create({
-      data: toPrismaGoalEventCreateData(parsed.data.goalId, parsed.data),
-    });
-
-    const updated = await prisma.goal.findFirst({
-      where: { id: parsed.data.goalId, userId: user.id },
-      include: goalWithEventsInclude,
-    });
-
-    if (!updated) {
-      return { error: "Goal not found", goal: null };
-    }
-
+    const { goalId, ...event } = parsed.data;
+    const api = createServerApiClient();
+    const wireEvent = {
+      ...event,
+      occurredAt:
+        event.occurredAt instanceof Date
+          ? event.occurredAt.toISOString()
+          : String(event.occurredAt),
+    };
+    const updated = await api.addGoalEvent(goalId, wireEvent);
     revalidatePath(routes.dashboard);
 
     return {
       error: null,
-      goal: mapGoalFromPrisma(updated, updated.events),
+      goal: mapGoalFromApi(updated as never),
     };
   } catch (error) {
-    if (isUnauthorizedError(error)) {
-      return { error: "Unauthorized", goal: null };
+    if (error instanceof ApiError) {
+      return { error: error.message, goal: null };
     }
-
     throw error;
   }
 }

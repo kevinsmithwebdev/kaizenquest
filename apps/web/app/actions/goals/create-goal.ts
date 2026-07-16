@@ -2,17 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 
+import { createServerApiClient } from "@/lib/api";
 import { routes } from "@/lib/navigation";
-import { prisma } from "@/lib/prisma";
-import { isUnauthorizedError } from "@/lib/auth";
+import { mapGoalFromApi } from "@/lib/goals/map-goal-from-api";
 import {
   createGoalSchema,
-  mapGoalFromPrisma,
   requireCurrentUser,
-  toPrismaGoalCreateData,
   type CreateGoalInput,
 } from "@/lib/goals";
 import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
+import { ApiError } from "@kaizen/shared-api-client";
 
 import type { GoalMutationResult } from "./goal.types";
 
@@ -20,7 +19,7 @@ export async function createGoal(
   input: CreateGoalInput,
 ): Promise<GoalMutationResult> {
   try {
-    const user = await requireCurrentUser();
+    await requireCurrentUser();
     const parsed = createGoalSchema.safeParse(input);
 
     if (!parsed.success) {
@@ -30,21 +29,18 @@ export async function createGoal(
       };
     }
 
-    const created = await prisma.goal.create({
-      data: toPrismaGoalCreateData(user.id, parsed.data),
-    });
-
+    const api = createServerApiClient();
+    const created = await api.createGoal(parsed.data);
     revalidatePath(routes.dashboard);
 
     return {
       error: null,
-      goal: mapGoalFromPrisma(created, []),
+      goal: mapGoalFromApi(created as never),
     };
   } catch (error) {
-    if (isUnauthorizedError(error)) {
-      return { error: "Unauthorized", goal: null };
+    if (error instanceof ApiError) {
+      return { error: error.message, goal: null };
     }
-
     throw error;
   }
 }

@@ -3,12 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
   revalidatePath: vi.fn(),
-  prisma: {
-    goal: {
-      findFirst: vi.fn(),
-      update: vi.fn(),
-    },
-  },
+  createGoal: vi.fn(),
+  updateGoal: vi.fn(),
+  deleteGoal: vi.fn(),
+  addGoalEvent: vi.fn(),
+  listGoals: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({
@@ -23,29 +22,37 @@ vi.mock("@/lib/auth", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  createServerApiClient: () => ({
+    createGoal: mocks.createGoal,
+    updateGoal: mocks.updateGoal,
+    deleteGoal: mocks.deleteGoal,
+    addGoalEvent: mocks.addGoalEvent,
+    listGoals: mocks.listGoals,
+  }),
 }));
 
+import { ApiError } from "@kaizen/shared-api-client";
+
 import { mockUser } from "@/lib/auth/test-helpers";
+import { UnauthorizedError } from "@/lib/auth";
 
 import { updateGoal } from "./update-goal";
 
 const authUser = mockUser;
 
-const existingOccuranceGoal = {
+const apiUpdatedGoal = {
   id: "goal-1",
   userId: "user-1",
-  name: "Meditate",
-  description: "Daily practice",
-  period: "WEEK" as const,
+  name: "Meditate more",
+  description: "Updated",
+  period: "MONTH" as const,
   type: "OCCURANCE" as const,
-  targetOccurrences: 5,
-  targetDuration: null,
-  targetAmount: null,
+  target: 7,
   category: null,
-  createdAt: new Date("2026-06-29T00:00:00.000Z"),
-  updatedAt: new Date("2026-06-29T00:00:00.000Z"),
+  createdAt: "2026-06-29T00:00:00.000Z",
+  updatedAt: "2026-06-29T00:00:00.000Z",
+  history: [],
 };
 
 describe("updateGoal", () => {
@@ -56,20 +63,11 @@ describe("updateGoal", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getCurrentUser.mockResolvedValue(authUser);
-    mocks.prisma.goal.findFirst
-      .mockResolvedValueOnce(existingOccuranceGoal)
-      .mockResolvedValueOnce({
-        ...existingOccuranceGoal,
-        name: "Meditate more",
-        targetOccurrences: 7,
-        events: [],
-      });
-    mocks.prisma.goal.update.mockResolvedValue({});
+    mocks.updateGoal.mockResolvedValue(apiUpdatedGoal);
   });
 
-  it("returns not found when the goal does not belong to the user", async () => {
-    mocks.prisma.goal.findFirst.mockReset();
-    mocks.prisma.goal.findFirst.mockResolvedValue(null);
+  it("returns not found when the API reports the goal is missing", async () => {
+    mocks.updateGoal.mockRejectedValue(new ApiError("Goal not found", 404));
 
     const result = await updateGoal({
       id: "goal-1",
@@ -80,12 +78,12 @@ describe("updateGoal", () => {
     });
 
     expect(result).toEqual({ error: "Goal not found", goal: null });
-    expect(mocks.prisma.goal.update).not.toHaveBeenCalled();
   });
 
-  it("returns a validation error when target does not match goal type", async () => {
-    mocks.prisma.goal.findFirst.mockReset();
-    mocks.prisma.goal.findFirst.mockResolvedValue(existingOccuranceGoal);
+  it("returns an API error when the update fails", async () => {
+    mocks.updateGoal.mockRejectedValue(
+      new ApiError("Target does not match goal type", 400),
+    );
 
     const result = await updateGoal({
       id: "goal-1",
@@ -95,9 +93,10 @@ describe("updateGoal", () => {
       target: "PT2H",
     });
 
-    expect(result.error).toBeTruthy();
-    expect(result.goal).toBeNull();
-    expect(mocks.prisma.goal.update).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      error: "Target does not match goal type",
+      goal: null,
+    });
   });
 
   it("updates an OCCURANCE goal", async () => {
@@ -109,16 +108,12 @@ describe("updateGoal", () => {
       target: 7,
     });
 
-    expect(mocks.prisma.goal.update).toHaveBeenCalledWith({
-      where: { id: "goal-1" },
-      data: {
-        name: "Meditate more",
-        description: "Updated",
-        period: "MONTH",
-        targetOccurrences: 7,
-        targetDuration: null,
-        targetAmount: null,
-      },
+    expect(mocks.updateGoal).toHaveBeenCalledWith("goal-1", {
+      id: "goal-1",
+      name: "Meditate more",
+      description: "Updated",
+      period: "MONTH",
+      target: 7,
     });
     expect(result.error).toBeNull();
     expect(result.goal).toMatchObject({
@@ -131,17 +126,18 @@ describe("updateGoal", () => {
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard");
   });
 
-  it("returns unauthorized when there is no current user", async () => {
+  it("throws unauthorized when there is no current user", async () => {
     mocks.getCurrentUser.mockResolvedValue(null);
 
-    const result = await updateGoal({
-      id: "goal-1",
-      name: "Meditate more",
-      description: "",
-      period: "WEEK",
-      target: 7,
-    });
-
-    expect(result).toEqual({ error: "Unauthorized", goal: null });
+    await expect(
+      updateGoal({
+        id: "goal-1",
+        name: "Meditate more",
+        description: "",
+        period: "WEEK",
+        target: 7,
+      }),
+    ).rejects.toThrow(UnauthorizedError);
+    expect(mocks.updateGoal).not.toHaveBeenCalled();
   });
 });

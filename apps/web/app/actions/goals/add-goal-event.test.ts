@@ -3,14 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getCurrentUser: vi.fn(),
   revalidatePath: vi.fn(),
-  prisma: {
-    goal: {
-      findFirst: vi.fn(),
-    },
-    goalEvent: {
-      create: vi.fn(),
-    },
-  },
+  createGoal: vi.fn(),
+  updateGoal: vi.fn(),
+  deleteGoal: vi.fn(),
+  addGoalEvent: vi.fn(),
+  listGoals: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", async (importOriginal) => {
@@ -21,42 +18,46 @@ vi.mock("@/lib/auth", async (importOriginal) => {
   };
 });
 
-vi.mock("@/lib/prisma", () => ({
-  prisma: mocks.prisma,
+vi.mock("@/lib/api", () => ({
+  createServerApiClient: () => ({
+    createGoal: mocks.createGoal,
+    updateGoal: mocks.updateGoal,
+    deleteGoal: mocks.deleteGoal,
+    addGoalEvent: mocks.addGoalEvent,
+    listGoals: mocks.listGoals,
+  }),
 }));
 
 vi.mock("next/cache", () => ({
   revalidatePath: mocks.revalidatePath,
 }));
 
+import { ApiError } from "@kaizen/shared-api-client";
+
 import { mockUser } from "@/lib/auth/test-helpers";
+import { UnauthorizedError } from "@/lib/auth";
 
 import { addGoalEvent } from "./add-goal-event";
 
 const authUser = mockUser;
 
-const prismaOccuranceGoal = {
+const apiOccuranceGoal = {
   id: "goal-1",
   userId: "user-1",
   name: "Meditate",
   description: "Daily practice",
   period: "WEEK" as const,
   type: "OCCURANCE" as const,
-  targetOccurrences: 5,
-  targetDuration: null,
-  targetAmount: null,
+  target: 5,
   category: null,
-  createdAt: new Date("2026-06-29T00:00:00.000Z"),
-  updatedAt: new Date("2026-06-29T00:00:00.000Z"),
-  events: [
+  createdAt: "2026-06-29T00:00:00.000Z",
+  updatedAt: "2026-06-29T00:00:00.000Z",
+  history: [
     {
       id: "event-1",
-      goalId: "goal-1",
       type: "OCCURANCE" as const,
       occurrences: 2,
-      duration: null,
-      amount: null,
-      occurredAt: new Date("2026-06-29T12:00:00.000Z"),
+      occurredAt: "2026-06-29T12:00:00.000Z",
     },
   ],
 };
@@ -69,12 +70,7 @@ describe("addGoalEvent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getCurrentUser.mockResolvedValue(authUser);
-    mocks.prisma.goal.findFirst
-      .mockResolvedValueOnce(prismaOccuranceGoal)
-      .mockResolvedValueOnce(prismaOccuranceGoal);
-    mocks.prisma.goalEvent.create.mockResolvedValue(
-      prismaOccuranceGoal.events[0],
-    );
+    mocks.addGoalEvent.mockResolvedValue(apiOccuranceGoal);
   });
 
   it("returns a validation error for invalid input", async () => {
@@ -87,26 +83,25 @@ describe("addGoalEvent", () => {
 
     expect(result.error).toBeTruthy();
     expect(result.goal).toBeNull();
-    expect(mocks.prisma.goalEvent.create).not.toHaveBeenCalled();
+    expect(mocks.addGoalEvent).not.toHaveBeenCalled();
   });
 
-  it("returns unauthorized when there is no current user", async () => {
+  it("throws unauthorized when there is no current user", async () => {
     mocks.getCurrentUser.mockResolvedValue(null);
 
-    const result = await addGoalEvent({
-      goalId: "goal-1",
-      type: "OCCURANCE",
-      occurrences: 1,
-      occurredAt: new Date("2026-06-29T12:00:00.000Z"),
-    });
-
-    expect(result).toEqual({ error: "Unauthorized", goal: null });
-    expect(mocks.prisma.goalEvent.create).not.toHaveBeenCalled();
+    await expect(
+      addGoalEvent({
+        goalId: "goal-1",
+        type: "OCCURANCE",
+        occurrences: 1,
+        occurredAt: new Date("2026-06-29T12:00:00.000Z"),
+      }),
+    ).rejects.toThrow(UnauthorizedError);
+    expect(mocks.addGoalEvent).not.toHaveBeenCalled();
   });
 
-  it("returns not found when the goal does not exist", async () => {
-    mocks.prisma.goal.findFirst.mockReset();
-    mocks.prisma.goal.findFirst.mockResolvedValue(null);
+  it("returns not found when the API reports the goal is missing", async () => {
+    mocks.addGoalEvent.mockRejectedValue(new ApiError("Goal not found", 404));
 
     const result = await addGoalEvent({
       goalId: "missing-goal",
@@ -116,12 +111,12 @@ describe("addGoalEvent", () => {
     });
 
     expect(result).toEqual({ error: "Goal not found", goal: null });
-    expect(mocks.prisma.goalEvent.create).not.toHaveBeenCalled();
   });
 
   it("returns an error when the event type does not match the goal type", async () => {
-    mocks.prisma.goal.findFirst.mockReset();
-    mocks.prisma.goal.findFirst.mockResolvedValue(prismaOccuranceGoal);
+    mocks.addGoalEvent.mockRejectedValue(
+      new ApiError("Event type does not match goal type", 400),
+    );
 
     const result = await addGoalEvent({
       goalId: "goal-1",
@@ -134,7 +129,6 @@ describe("addGoalEvent", () => {
       error: "Event type does not match goal type",
       goal: null,
     });
-    expect(mocks.prisma.goalEvent.create).not.toHaveBeenCalled();
   });
 
   it("creates an OCCURANCE event and returns the updated goal", async () => {
@@ -147,15 +141,10 @@ describe("addGoalEvent", () => {
       occurredAt,
     });
 
-    expect(mocks.prisma.goalEvent.create).toHaveBeenCalledWith({
-      data: {
-        goal: { connect: { id: "goal-1" } },
-        type: "OCCURANCE",
-        occurredAt,
-        occurrences: 2,
-        duration: null,
-        amount: null,
-      },
+    expect(mocks.addGoalEvent).toHaveBeenCalledWith("goal-1", {
+      type: "OCCURANCE",
+      occurrences: 2,
+      occurredAt: occurredAt.toISOString(),
     });
     expect(mocks.revalidatePath).toHaveBeenCalledWith("/dashboard");
     expect(result.error).toBeNull();
@@ -170,5 +159,6 @@ describe("addGoalEvent", () => {
         },
       ],
     });
+    expect(result.goal?.history[0]?.occurredAt).toEqual(occurredAt);
   });
 });
