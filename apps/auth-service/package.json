@@ -1,0 +1,11 @@
+{
+  "name": "@kaizen/auth-service",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@kaizen/domain-auth": "0.0.1",
+    "@kaizen/shared-contracts": "0.0.1",
+    "@kaizen/shared-nestjs": "0.0.1"
+  }
+}

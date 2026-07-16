@@ -50,6 +50,8 @@ next-env.d.ts
 /personal
 
 /apps/web/lib/generated/prisma
+**/src/generated/prisma
+**/node_modules
 
 .vercel
 .env*

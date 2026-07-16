@@ -21,7 +21,9 @@
     "paths": {
       "@kaizen/shared-utils": ["libs/shared/utils/src/index.ts"],
       "@kaizen/shared-contracts": ["libs/shared/contracts/src/index.ts"],
-      "@kaizen/domain-goals": ["libs/domain/goals/src/index.ts"]
+      "@kaizen/shared-nestjs": ["libs/shared/nestjs/src/index.ts"],
+      "@kaizen/domain-goals": ["libs/domain/goals/src/index.ts"],
+      "@kaizen/domain-auth": ["libs/domain/auth/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

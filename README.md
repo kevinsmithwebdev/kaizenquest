@@ -64,9 +64,9 @@ yarn infra:ps
 
 | Service            | Host                                           | Notes         |
 | ------------------ | ---------------------------------------------- | ------------- |
-| Postgres auth      | `localhost:5433` / `auth_db`                   | Phase 3       |
-| Postgres goals     | `localhost:5434` / `goals_db`                  | Phase 4       |
-| Postgres analytics | `localhost:5435` / `analytics_db`              | Phase 7+      |
+| Postgres auth      | `localhost:15433` / `auth_db`                  | Phase 3       |
+| Postgres goals     | `localhost:15434` / `goals_db`                 | Phase 4       |
+| Postgres analytics | `localhost:15435` / `analytics_db`             | Phase 7+      |
 | Kafka              | `localhost:9092`                               | Event bus     |
 | Kafka UI           | [http://localhost:8080](http://localhost:8080) | Topic browser |
 

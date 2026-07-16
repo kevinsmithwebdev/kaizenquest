@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "ES2021",
+    "types": ["node"],
+    "outDir": "../../dist/apps/auth-service",
+    "baseUrl": "../..",
+    "paths": {
+      "@kaizen/domain-auth": ["libs/domain/auth/src/index.ts"],
+      "@kaizen/shared-contracts": ["libs/shared/contracts/src/index.ts"],
+      "@kaizen/shared-nestjs": ["libs/shared/nestjs/src/index.ts"],
+      "@kaizen/shared-utils": ["libs/shared/utils/src/index.ts"],
+      "@kaizen/domain-goals": ["libs/domain/goals/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"]
+}
