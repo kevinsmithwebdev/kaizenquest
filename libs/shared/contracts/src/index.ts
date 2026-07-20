@@ -21,6 +21,7 @@ export {
 export {
   isIso8601Duration,
   parseIso8601DurationParts,
+  parseIso8601DurationToMinutes,
 } from "./goals/iso-duration";
 export {
   iso8601DurationSchema,

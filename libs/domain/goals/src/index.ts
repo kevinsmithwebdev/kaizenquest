@@ -55,6 +55,7 @@ export {
   type PeriodProgressSummary,
 } from "./goals/period-progress";
 export { isIso8601Duration, iso8601DurationSchema } from "./goals/iso-duration";
+export { mapGoalFromWire } from "./goals/map-goal-from-wire";
 export { matchGoalType } from "./goals/match-goal-type";
 export { isUpdateGoalInputEqual } from "./goals/goal-input-utils";
 export {

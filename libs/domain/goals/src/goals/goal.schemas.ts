@@ -1,6 +1,13 @@
 import { z } from "zod";
 
 import {
+  goalIdSchema,
+  iso8601DurationSchema,
+  positiveFloatSchema,
+  positiveIntSchema,
+} from "@kaizen/shared-contracts";
+
+export {
   addGoalEventSchema as addGoalEventWireSchema,
   createGoalSchema,
   goalEventSchema as goalEventWireSchema,
@@ -16,18 +23,6 @@ import {
   type GoalType,
   type UpdateGoalInput,
 } from "@kaizen/shared-contracts";
-
-export {
-  createGoalSchema,
-  goalIdSchema,
-  iso8601DurationSchema,
-  positiveFloatSchema,
-  positiveIntSchema,
-  updateGoalSchema,
-  validateGoalTarget,
-  type CreateGoalInput,
-  type UpdateGoalInput,
-};
 
 /**
  * In-process event schema (coerces ISO strings to Date for Prisma/web).
@@ -59,11 +54,3 @@ export const addGoalEventSchema = z
 
 export type GoalEventInput = z.infer<typeof goalEventSchema>;
 export type AddGoalEventInput = z.infer<typeof addGoalEventSchema>;
-
-export {
-  addGoalEventWireSchema,
-  goalEventWireSchema,
-  type AddGoalEventWireInput,
-  type GoalEventWireInput,
-  type GoalType,
-};

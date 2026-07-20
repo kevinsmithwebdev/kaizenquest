@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { createServerApiClient } from "@/lib/api";
 import { routes } from "@/lib/navigation";
-import { mapGoalFromApi } from "@/lib/goals/map-goal-from-api";
+import { mapGoalFromWire } from "@kaizen/domain-goals";
+import type { Goal as WireGoal } from "@kaizen/shared-contracts";
 import {
   createGoalSchema,
   requireCurrentUser,
@@ -35,7 +36,7 @@ export async function createGoal(
 
     return {
       error: null,
-      goal: mapGoalFromApi(created as never),
+      goal: mapGoalFromWire(created as WireGoal),
     };
   } catch (error) {
     if (error instanceof ApiError) {

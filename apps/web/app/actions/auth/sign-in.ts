@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { setAuthCookie } from "@/lib/auth";
+import { formatApiErrorMessage } from "@/lib/auth/format-api-error-message";
 import { getApiGatewayUrl } from "@/lib/api";
 import { routes } from "@/lib/navigation";
 import { getFirstZodIssueMessage } from "@kaizen/shared-utils";
@@ -31,14 +32,11 @@ export async function signIn(
     });
     const body = await response.json();
     if (!response.ok) {
-      const message = body?.message;
       return {
-        error:
-          typeof message === "string"
-            ? message
-            : Array.isArray(message)
-              ? message.join(", ")
-              : "Invalid email or password.",
+        error: formatApiErrorMessage(
+          body?.message,
+          "Invalid email or password.",
+        ),
       };
     }
     await setAuthCookie(body.accessToken as string);

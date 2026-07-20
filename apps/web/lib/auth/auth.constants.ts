@@ -1,6 +1,4 @@
-import { MIN_PASSWORD_LENGTH } from "@kaizen/shared-contracts";
-
-export { MIN_PASSWORD_LENGTH };
+export { MIN_PASSWORD_LENGTH } from "@kaizen/shared-contracts";
 
 export const authUserSelect = {
   id: true,

@@ -1,14 +1,10 @@
 import { createServerApiClient } from "@/lib/api";
-import type { Goal } from "@kaizen/domain-goals";
-
-import { mapGoalFromApi } from "./map-goal-from-api";
+import { mapGoalFromWire, type Goal } from "@kaizen/domain-goals";
 
 export const listGoalsForUser = async (_userId: string): Promise<Goal[]> => {
   const api = createServerApiClient();
   const { goals } = await api.listGoals();
-  return goals.map((goal) =>
-    mapGoalFromApi(goal as Parameters<typeof mapGoalFromApi>[0]),
-  );
+  return goals.map((goal) => mapGoalFromWire(goal));
 };
 
 export const getGoalForUser = async (

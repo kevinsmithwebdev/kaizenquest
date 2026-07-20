@@ -1,7 +1,7 @@
 import { getWeekStartMonday, startOfDay } from "@kaizen/shared-utils";
 
 import type { Goal, GoalPeriod } from "./goal.types";
-import { parseIso8601DurationToMinutes } from "./iso-duration-parse";
+import { parseIso8601DurationToMinutes } from "./iso-duration";
 
 export { parseIso8601DurationToMinutes };
 

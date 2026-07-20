@@ -8,7 +8,7 @@ type Iso8601DurationParts = {
   seconds: number;
 };
 
-const UNIT_PATTERN = /^(\d+(?:\.\d+)?)(Y|M|W|D|H|S)/;
+const UNIT_PATTERN = /^(\d+(?:\.\d+)?)([YMWDHS])/;
 
 const DATE_UNITS = new Set(["Y", "M", "W", "D"]);
 const TIME_UNITS = new Set(["H", "M", "S"]);
@@ -81,3 +81,18 @@ export const parseIso8601DurationParts = (
 
 export const isIso8601Duration = (value: string): boolean =>
   parseIso8601DurationParts(value) !== null;
+
+export const parseIso8601DurationToMinutes = (value: string): number => {
+  const parts = parseIso8601DurationParts(value);
+  if (!parts) {
+    return 0;
+  }
+
+  return (
+    parts.weeks * 7 * 24 * 60 +
+    parts.days * 24 * 60 +
+    parts.hours * 60 +
+    parts.minutes +
+    Math.round(parts.seconds / 60)
+  );
+};

@@ -28,8 +28,8 @@ export const authUserSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
   email: z.email(),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
 });
 
 export const authTokenResponseSchema = z.object({

@@ -3,7 +3,7 @@ import { z } from "zod";
 export const kafkaEventEnvelopeSchema = z.object({
   eventId: z.string().min(1),
   eventType: z.string().min(1),
-  occurredAt: z.string().datetime(),
+  occurredAt: z.iso.datetime(),
   payload: z.unknown(),
 });
 

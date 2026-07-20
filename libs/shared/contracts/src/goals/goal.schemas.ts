@@ -35,17 +35,17 @@ export const goalEventSchema = z.discriminatedUnion("type", [
   z.object({
     type: z.literal("OCCURANCE"),
     occurrences: positiveIntSchema,
-    occurredAt: z.string().datetime(),
+    occurredAt: z.iso.datetime(),
   }),
   z.object({
     type: z.literal("TIME"),
     duration: iso8601DurationSchema,
-    occurredAt: z.string().datetime(),
+    occurredAt: z.iso.datetime(),
   }),
   z.object({
     type: z.literal("AMOUNT"),
     amount: positiveFloatSchema,
-    occurredAt: z.string().datetime(),
+    occurredAt: z.iso.datetime(),
   }),
 ]);
 
@@ -87,19 +87,19 @@ const goalEventResponseSchema = z.discriminatedUnion("type", [
     id: z.string().min(1),
     type: z.literal("OCCURANCE"),
     occurrences: positiveIntSchema,
-    occurredAt: z.string().datetime(),
+    occurredAt: z.iso.datetime(),
   }),
   z.object({
     id: z.string().min(1),
     type: z.literal("TIME"),
     duration: iso8601DurationSchema,
-    occurredAt: z.string().datetime(),
+    occurredAt: z.iso.datetime(),
   }),
   z.object({
     id: z.string().min(1),
     type: z.literal("AMOUNT"),
     amount: positiveFloatSchema,
-    occurredAt: z.string().datetime(),
+    occurredAt: z.iso.datetime(),
   }),
 ]);
 
@@ -110,8 +110,8 @@ const goalBaseFields = {
   description: z.string(),
   category: goalCategorySchema,
   period: goalPeriodSchema,
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
+  createdAt: z.iso.datetime(),
+  updatedAt: z.iso.datetime(),
   history: z.array(goalEventResponseSchema),
 };
 
