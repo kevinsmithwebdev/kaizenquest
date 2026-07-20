@@ -59,42 +59,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-be:
-    name: Deploy backend to Railway
-    needs: validate
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    env:
-      RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-      RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
-      RAILWAY_ENVIRONMENT: ${{ secrets.RAILWAY_ENVIRONMENT }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: yarn
-
-      - name: Check Railway token
-        run: |
-          if [ -z "$RAILWAY_TOKEN" ]; then
-            echo "::error::Missing RAILWAY_TOKEN GitHub secret."
-            exit 1
-          fi
-
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
-
-      - name: Deploy Nest services
-        run: yarn deploy:be
-
   deploy-web:
     name: Deploy web to Vercel
-    needs: [validate, deploy-be]
+    needs: validate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:

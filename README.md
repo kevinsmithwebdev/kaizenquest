@@ -42,7 +42,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `yarn build`          | Build web for production                         |
 | `yarn build:services` | Bundle Nest services to `dist/apps/*/main.mjs`   |
 | `yarn deploy:web`     | Upsert Vercel env + deploy web                   |
-| `yarn deploy:be`      | Deploy Nest services to Railway                  |
+| `yarn deploy:be`      | Optional manual Railway deploy (not used in CI)  |
 | `yarn migrate:be`     | `prisma migrate deploy` for auth/goals/analytics |
 | `yarn test`           | Run unit tests                                   |
 | `yarn validate`       | Typecheck, lint, test, and optional Sonar        |
@@ -81,13 +81,11 @@ yarn dev              # web :3000
 
 ## Production deploy
 
-Web → **Vercel**, Nest + Kafka → **Railway**, Postgres → **Neon** (3 DBs).
+Web → **Vercel**. Nest + Kafka + Postgres run **locally** for development.
 
 Full runbook: **[docs/deploy.md](docs/deploy.md)**
 
 ```bash
-yarn migrate:be
-yarn deploy:be
 yarn deploy:web   # needs API_GATEWAY_URL + SESSION_SECRET + VERCEL_TOKEN
 ```
 
@@ -112,8 +110,8 @@ libs/infra/            Docker Compose Nx targets
 ## Tech stack
 
 - Next.js 16 (App Router), React 19, TypeScript
-- NestJS microservices + Kafka (Redpanda in prod)
-- PostgreSQL via Prisma 7 (Neon in prod)
+- NestJS microservices + Kafka (Redpanda locally)
+- PostgreSQL via Prisma 7
 - JWT cookie authentication
 - Tailwind CSS 4, shadcn/ui
 - Vitest for unit tests
