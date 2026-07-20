@@ -75,6 +75,38 @@ describe("signIn", () => {
     expect(result).toEqual({ error: "Invalid email or password." });
   });
 
+  it("returns a joined error when auth service returns message arrays", async () => {
+    mocks.fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        message: ["Email is required", "Password is required"],
+      }),
+    });
+
+    const result = await signIn(
+      { error: null },
+      createFormData({ email: "ada@example.com", password: "wrong" }),
+    );
+
+    expect(result).toEqual({
+      error: "Email is required, Password is required",
+    });
+  });
+
+  it("returns a fallback error when auth service returns no message", async () => {
+    mocks.fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
+    });
+
+    const result = await signIn(
+      { error: null },
+      createFormData({ email: "ada@example.com", password: "wrong" }),
+    );
+
+    expect(result).toEqual({ error: "Invalid email or password." });
+  });
+
   it("returns an error when auth service is unreachable", async () => {
     mocks.fetch.mockRejectedValue(new Error("offline"));
 

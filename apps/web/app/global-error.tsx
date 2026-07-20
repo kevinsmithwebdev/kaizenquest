@@ -1,12 +1,14 @@
 "use client";
 
+type GlobalErrorProps = Readonly<{
+  error: Error & { digest?: string };
+  reset: () => void;
+}>;
+
 export default function GlobalError({
   error: _error,
   reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
+}: GlobalErrorProps) {
   return (
     <html lang="en">
       <body>

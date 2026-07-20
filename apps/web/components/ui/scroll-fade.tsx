@@ -5,7 +5,7 @@ import type { ComponentPropsWithoutRef } from "react";
 import { useScrollOverflow } from "@/hooks/use-scroll-overflow";
 import { cn } from "@/lib/utils";
 
-type ScrollFadeProps = ComponentPropsWithoutRef<"div">;
+type ScrollFadeProps = Readonly<ComponentPropsWithoutRef<"div">>;
 
 export function ScrollFade({ children, className, ...props }: ScrollFadeProps) {
   const { ref, canScrollUp, canScrollDown } = useScrollOverflow();

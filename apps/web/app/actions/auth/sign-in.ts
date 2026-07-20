@@ -31,13 +31,14 @@ export async function signIn(
     });
     const body = await response.json();
     if (!response.ok) {
+      const message = body?.message;
       return {
         error:
-          typeof body?.message === "string"
-            ? Array.isArray(body.message)
-              ? body.message.join(", ")
-              : body.message
-            : "Invalid email or password.",
+          typeof message === "string"
+            ? message
+            : Array.isArray(message)
+              ? message.join(", ")
+              : "Invalid email or password.",
       };
     }
     await setAuthCookie(body.accessToken as string);

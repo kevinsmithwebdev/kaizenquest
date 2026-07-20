@@ -80,17 +80,29 @@ const goalToFormState = (goal: Goal) => {
 
 type GoalFormState = ReturnType<typeof goalToFormState>;
 
-const buildUpdateGoalInput = (
-  goal: Goal,
-  name: string,
-  description: string,
-  category: GoalCategory | "",
-  period: GoalPeriod,
-  occurrenceValue: number,
-  hoursValue: number,
-  minutesValue: number,
-  amountValue: number,
-): UpdateGoalInput => {
+type BuildUpdateGoalInputParams = {
+  goal: Goal;
+  name: string;
+  description: string;
+  category: GoalCategory | "";
+  period: GoalPeriod;
+  occurrenceValue: number;
+  hoursValue: number;
+  minutesValue: number;
+  amountValue: number;
+};
+
+const buildUpdateGoalInput = ({
+  goal,
+  name,
+  description,
+  category,
+  period,
+  occurrenceValue,
+  hoursValue,
+  minutesValue,
+  amountValue,
+}: BuildUpdateGoalInputParams): UpdateGoalInput => {
   const base = {
     id: goal.id,
     name: name.trim(),
@@ -124,28 +136,28 @@ const isEditGoalFormDirty = (
   amountValue: number,
 ): boolean => {
   const initial = goalToFormState(goal);
-  const initialInput = buildUpdateGoalInput(
+  const initialInput = buildUpdateGoalInput({
     goal,
-    initial.name,
-    initial.description,
-    initial.category,
-    initial.period,
-    Number(initial.occurrences),
-    Number(initial.hours),
-    Number(initial.minutes),
-    Number(initial.amount),
-  );
-  const currentInput = buildUpdateGoalInput(
+    name: initial.name,
+    description: initial.description,
+    category: initial.category,
+    period: initial.period,
+    occurrenceValue: Number(initial.occurrences),
+    hoursValue: Number(initial.hours),
+    minutesValue: Number(initial.minutes),
+    amountValue: Number(initial.amount),
+  });
+  const currentInput = buildUpdateGoalInput({
     goal,
-    form.name,
-    form.description,
-    form.category,
-    form.period,
+    name: form.name,
+    description: form.description,
+    category: form.category,
+    period: form.period,
     occurrenceValue,
     hoursValue,
     minutesValue,
     amountValue,
-  );
+  });
 
   return !isUpdateGoalInputEqual(initialInput, currentInput);
 };
@@ -216,17 +228,17 @@ function EditGoalForm({ goal, onClose }: Readonly<EditGoalFormProps>) {
 
     startTransition(async () => {
       const result = await updateGoal(
-        buildUpdateGoalInput(
+        buildUpdateGoalInput({
           goal,
-          form.name,
-          form.description,
-          form.category,
-          form.period,
+          name: form.name,
+          description: form.description,
+          category: form.category,
+          period: form.period,
           occurrenceValue,
           hoursValue,
           minutesValue,
           amountValue,
-        ),
+        }),
       );
 
       if (result.error || !result.goal) {

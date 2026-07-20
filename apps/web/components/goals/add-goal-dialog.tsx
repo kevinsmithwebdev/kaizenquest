@@ -40,17 +40,29 @@ type AddGoalDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-const buildCreateGoalInput = (
-  name: string,
-  description: string,
-  category: GoalCategory | "",
-  period: GoalPeriod,
-  type: GoalType,
-  occurrenceValue: number,
-  hoursValue: number,
-  minutesValue: number,
-  amountValue: number,
-): CreateGoalInput => {
+type BuildCreateGoalInputParams = {
+  name: string;
+  description: string;
+  category: GoalCategory | "";
+  period: GoalPeriod;
+  type: GoalType;
+  occurrenceValue: number;
+  hoursValue: number;
+  minutesValue: number;
+  amountValue: number;
+};
+
+const buildCreateGoalInput = ({
+  name,
+  description,
+  category,
+  period,
+  type,
+  occurrenceValue,
+  hoursValue,
+  minutesValue,
+  amountValue,
+}: BuildCreateGoalInputParams): CreateGoalInput => {
   const base = {
     name: name.trim(),
     description: description.trim(),
@@ -138,17 +150,17 @@ function AddGoalForm({ onClose }: Readonly<{ onClose: () => void }>) {
 
     startTransition(async () => {
       const result = await createGoal(
-        buildCreateGoalInput(
-          form.name,
-          form.description,
-          form.category,
+        buildCreateGoalInput({
+          name: form.name,
+          description: form.description,
+          category: form.category,
           period,
           type,
           occurrenceValue,
           hoursValue,
           minutesValue,
           amountValue,
-        ),
+        }),
       );
 
       if (result.error || !result.goal) {

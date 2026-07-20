@@ -5,7 +5,7 @@ import { KAFKA_TOPICS } from "./topics";
 
 export const userRegisteredPayloadSchema = z.object({
   userId: z.string().min(1),
-  email: z.string().email(),
+  email: z.email(),
   name: z.string().min(1),
 });
 

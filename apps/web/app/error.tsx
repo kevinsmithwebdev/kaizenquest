@@ -4,13 +4,12 @@ import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 
-export default function Error({
-  error,
-  reset,
-}: {
+type ErrorPageProps = Readonly<{
   error: Error & { digest?: string };
   reset: () => void;
-}) {
+}>;
+
+export default function ErrorPage({ error, reset }: ErrorPageProps) {
   useEffect(() => {
     console.error(error);
   }, [error]);

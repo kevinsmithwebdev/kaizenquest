@@ -22,6 +22,39 @@ type GoalFormValidationInput = {
   amount: string;
 };
 
+const getTargetValidationError = (
+  effectiveType: GoalType,
+  form: Pick<
+    GoalFormValidationInput,
+    "occurrences" | "hours" | "minutes" | "amount"
+  >,
+): string | undefined => {
+  const occurrenceValue = Number(form.occurrences);
+  const hoursValue = Number(form.hours);
+  const minutesValue = Number(form.minutes);
+  const amountValue = Number(form.amount);
+
+  if (effectiveType === "OCCURANCE") {
+    return isPositiveOccurrenceValue(occurrenceValue)
+      ? undefined
+      : "Enter a valid target";
+  }
+
+  if (effectiveType === "TIME") {
+    return isPositiveTimeValue(hoursValue, minutesValue)
+      ? undefined
+      : "Enter a valid target";
+  }
+
+  if (form.amount.trim() === "") {
+    return "Target amount is required";
+  }
+
+  return isPositiveAmountValue(amountValue)
+    ? undefined
+    : "Enter a valid target";
+};
+
 export const getGoalFormValidationErrors = (
   form: GoalFormValidationInput,
   options: { mode: "create" | "edit"; goalType?: GoalType },
@@ -47,23 +80,9 @@ export const getGoalFormValidationErrors = (
     return errors;
   }
 
-  const occurrenceValue = Number(form.occurrences);
-  const hoursValue = Number(form.hours);
-  const minutesValue = Number(form.minutes);
-  const amountValue = Number(form.amount);
-
-  if (effectiveType === "OCCURANCE") {
-    if (!isPositiveOccurrenceValue(occurrenceValue)) {
-      errors.target = "Enter a valid target";
-    }
-  } else if (effectiveType === "TIME") {
-    if (!isPositiveTimeValue(hoursValue, minutesValue)) {
-      errors.target = "Enter a valid target";
-    }
-  } else if (form.amount.trim() === "") {
-    errors.target = "Target amount is required";
-  } else if (!isPositiveAmountValue(amountValue)) {
-    errors.target = "Enter a valid target";
+  const targetError = getTargetValidationError(effectiveType, form);
+  if (targetError) {
+    errors.target = targetError;
   }
 
   return errors;

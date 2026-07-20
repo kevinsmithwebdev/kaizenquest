@@ -87,6 +87,42 @@ describe("signUp", () => {
     });
   });
 
+  it("returns a joined error when auth service returns message arrays", async () => {
+    mocks.fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({ message: ["Name is required", "Email is invalid"] }),
+    });
+
+    const result = await signUp(
+      { error: null },
+      createFormData({
+        name: "Ada",
+        email: "ada@example.com",
+        password: "password1",
+      }),
+    );
+
+    expect(result).toEqual({ error: "Name is required, Email is invalid" });
+  });
+
+  it("returns a fallback error when auth service returns no message", async () => {
+    mocks.fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({}),
+    });
+
+    const result = await signUp(
+      { error: null },
+      createFormData({
+        name: "Ada",
+        email: "ada@example.com",
+        password: "password1",
+      }),
+    );
+
+    expect(result).toEqual({ error: "Unable to create account." });
+  });
+
   it("returns an error when auth service is unreachable", async () => {
     mocks.fetch.mockRejectedValue(new Error("offline"));
 

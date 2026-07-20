@@ -4,7 +4,10 @@ import { MIN_PASSWORD_LENGTH } from "./auth.constants";
 
 export const signUpSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
-  email: z.string().trim().email("Enter a valid email"),
+  email: z
+    .string()
+    .trim()
+    .pipe(z.email({ error: "Enter a valid email" })),
   password: z
     .string()
     .min(
@@ -14,14 +17,17 @@ export const signUpSchema = z.object({
 });
 
 export const signInSchema = z.object({
-  email: z.string().trim().email("Enter a valid email"),
+  email: z
+    .string()
+    .trim()
+    .pipe(z.email({ error: "Enter a valid email" })),
   password: z.string().min(1, "Password is required"),
 });
 
 export const authUserSchema = z.object({
   id: z.string().min(1),
   name: z.string().min(1),
-  email: z.string().email(),
+  email: z.email(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });

@@ -8,7 +8,7 @@ type Iso8601DurationParts = {
   seconds: number;
 };
 
-const UNIT_PATTERN = /^(\d+(?:\.\d+)?)(Y|M|W|D|H|S)/;
+const UNIT_PATTERN = /^(\d+(?:\.\d+)?)([YMWDHS])/;
 
 const DATE_UNITS = new Set(["Y", "M", "W", "D"]);
 const TIME_UNITS = new Set(["H", "M", "S"]);

@@ -32,11 +32,14 @@ export async function signUp(
     });
     const body = await response.json();
     if (!response.ok) {
+      const message = body?.message;
       return {
         error:
-          typeof body?.message === "string"
-            ? body.message
-            : "Unable to create account.",
+          typeof message === "string"
+            ? message
+            : Array.isArray(message)
+              ? message.join(", ")
+              : "Unable to create account.",
       };
     }
     await setAuthCookie(body.accessToken as string);
