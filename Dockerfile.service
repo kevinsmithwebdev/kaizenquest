@@ -1,12 +1,14 @@
 # Production NestJS service image (generic for auth/goals/analytics/gateway)
 FROM node:22-alpine AS deps
 WORKDIR /app
+RUN apk add --no-cache openssl
 COPY package.json yarn.lock ./
 COPY apps ./apps
 COPY libs ./libs
 COPY nx.json tsconfig.base.json tsconfig.json ./
 COPY scripts/build-service.mjs ./scripts/build-service.mjs
-RUN yarn install --frozen-lockfile --production=false
+# Skip root postinstall (no monolith schema in this image); generate per-service below.
+RUN yarn install --frozen-lockfile --production=false --ignore-scripts
 
 FROM deps AS build
 ARG SERVICE=auth-service
@@ -26,6 +28,7 @@ RUN node scripts/build-service.mjs $SERVICE
 
 FROM node:22-alpine AS runner
 WORKDIR /app
+RUN apk add --no-cache openssl
 ENV NODE_ENV=production
 ARG SERVICE=auth-service
 ENV SERVICE=$SERVICE

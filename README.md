@@ -41,7 +41,6 @@ Open [http://localhost:3000](http://localhost:3000).
 | `yarn dev:complete`   | Infra + Nest services + web on :3000             |
 | `yarn build`          | Build web for production                         |
 | `yarn build:services` | Bundle Nest services to `dist/apps/*/main.mjs`   |
-| `yarn deploy:web`     | Upsert Vercel env + deploy web                   |
 | `yarn deploy:be`      | Optional manual Railway deploy (not used in CI)  |
 | `yarn migrate:be`     | `prisma migrate deploy` for auth/goals/analytics |
 | `yarn test`           | Run unit tests                                   |
@@ -79,15 +78,9 @@ yarn analytics:serve  # :3004
 yarn dev              # web :3000
 ```
 
-## Production deploy
+## Local runbook
 
-Web → **Vercel**. Nest + Kafka + Postgres run **locally** for development.
-
-Full runbook: **[docs/deploy.md](docs/deploy.md)**
-
-```bash
-yarn deploy:web   # needs API_GATEWAY_URL + SESSION_SECRET + VERCEL_TOKEN
-```
+This is a **local-only** app. Full setup: **[docs/deploy.md](docs/deploy.md)**
 
 ## Monorepo layout
 
@@ -104,8 +97,6 @@ libs/domain/auth/      JWT + password helpers
 libs/domain/goals/     Pure goal/streak/calendar logic
 libs/infra/            Docker Compose Nx targets
 ```
-
-**Vercel:** set the project root directory to `apps/web` in the Vercel dashboard.
 
 ## Tech stack
 

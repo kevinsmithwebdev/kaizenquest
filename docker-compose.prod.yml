@@ -77,14 +77,16 @@ services:
     env_file: .env.prod
     networks:
       - internal
-    entrypoint: ["/bin/bash", "-lc"]
-    command: >
-      corepack enable &&
-      yarn install --frozen-lockfile &&
-      yarn prisma generate --config apps/auth-service/prisma.config.ts &&
-      yarn prisma generate --config apps/goals-service/prisma.config.ts &&
-      yarn prisma generate --config apps/analytics-service/prisma.config.ts &&
-      yarn migrate:be
+    command:
+      - /bin/bash
+      - -c
+      - |
+        corepack enable &&
+        yarn install --frozen-lockfile &&
+        yarn prisma generate --config apps/auth-service/prisma.config.ts &&
+        yarn prisma generate --config apps/goals-service/prisma.config.ts &&
+        yarn prisma generate --config apps/analytics-service/prisma.config.ts &&
+        yarn migrate:be
     profiles:
       - migrate
 
