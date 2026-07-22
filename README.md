@@ -82,6 +82,64 @@ yarn dev              # web :3000
 
 This is a **local-only** app. Full setup: **[docs/deploy.md](docs/deploy.md)**
 
+## Architecture
+
+```mermaid
+flowchart TB
+  subgraph Clients
+    Web["apps/web<br/>Next.js :3000"]
+    Mobile["apps/mobile<br/>Expo shell"]
+  end
+
+  subgraph Shared["Shared libs"]
+    Contracts["@kaizen/shared-contracts"]
+    ApiClient["@kaizen/shared-api-client"]
+    DomainAuth["@kaizen/domain-auth"]
+    DomainGoals["@kaizen/domain-goals"]
+  end
+
+  GW["apps/api-gateway<br/>:3003"]
+
+  subgraph Services["NestJS services"]
+    Auth["auth-service :3001"]
+    Goals["goals-service :3002"]
+    Analytics["analytics-service :3004"]
+  end
+
+  subgraph Data["PostgreSQL (database-per-service)"]
+    AuthDB[(auth_db :15433)]
+    GoalsDB[(goals_db :15434)]
+    AnalyticsDB[(analytics_db :15435)]
+  end
+
+  Kafka{{"Kafka / Redpanda<br/>:9092"}}
+
+  Web --> ApiClient
+  Mobile --> ApiClient
+  ApiClient -->|"Bearer JWT"| GW
+  Web -.->|"server actions<br/>cookie JWT"| GW
+
+  GW -->|"/auth/*"| Auth
+  GW -->|"/goals/*"| Goals
+  GW -->|"/analytics/*"| Analytics
+
+  Auth --> AuthDB
+  Goals --> GoalsDB
+  Analytics --> AnalyticsDB
+
+  Auth -->|"user-registered"| Kafka
+  Goals -->|"goal-created / updated<br/>deleted / event-logged"| Kafka
+  Kafka -->|"goal-event-logged"| Analytics
+
+  Auth --- DomainAuth
+  Goals --- DomainGoals
+  Contracts -.-> Auth & Goals & Analytics & ApiClient
+```
+
+**Request path:** Browser → Next.js (RSC / server actions) → API gateway → auth / goals / analytics → Postgres.
+
+**Event path:** auth & goals publish Kafka topics; analytics consumes `goal-event-logged` into streak/activity projections.
+
 ## Monorepo layout
 
 ```
