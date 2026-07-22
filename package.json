@@ -21,7 +21,7 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "deploy:be": "node scripts/deploy-be.mjs",
-    "deploy:web": "node scripts/deploy-web.mjs",
+    "deploy:be:vps": "bash scripts/deploy-be-vps.sh",
     "dev": "nx dev web",
     "dev:complete": "node scripts/dev-complete.mjs",
     "format": "prettier --write .",
@@ -43,8 +43,7 @@
     "test:watch": "vitest",
     "test": "vitest run",
     "typecheck": "nx run-many -t typecheck",
-    "validate": "node scripts/validate.mjs",
-    "vercel:github-secrets": "node scripts/print-vercel-github-secrets.mjs"
+    "validate": "node scripts/validate.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -99,7 +98,6 @@
     "tsx": "^4.22.4",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5",
-    "vercel": "^54.20.0",
     "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.9"
   }

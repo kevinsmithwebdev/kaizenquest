@@ -96,14 +96,31 @@ Ignore “already exists” if you re-run.
 
 ### 4. Migrate + start backend
 
+First-time / full deploy on the VPS:
+
 ```bash
 cd /opt/platform/apps/kaizen
-docker compose -f docker-compose.prod.yml --profile migrate run --rm migrate
-docker compose -f docker-compose.prod.yml up -d --build
-docker compose -f docker-compose.prod.yml ps
+chmod +x scripts/deploy-be-vps.sh
+./scripts/deploy-be-vps.sh --migrate
 ```
 
-First build takes several minutes on a small VPS.
+Day-to-day (after you `git push` from your PC):
+
+```bash
+ssh deploy@159.69.146.228
+cd /opt/platform/apps/kaizen
+./scripts/deploy-be-vps.sh
+```
+
+Useful flags:
+
+```bash
+./scripts/deploy-be-vps.sh --migrate              # schema/migration changes
+./scripts/deploy-be-vps.sh --service=api-gateway  # one service only
+./scripts/deploy-be-vps.sh --no-pull              # use current checkout
+```
+
+The script ensures postgres/traefik/redpanda are up, pulls, builds services **one at a time** (safer on small VPSes), restarts them, and checks `/health`.
 
 ### 5. Verify
 
