@@ -1,0 +1,95 @@
+# Production stack for a single VPS (Traefik + shared postgres/redpanda on `internal`).
+# Usage: see docs/deploy.md → "VPS production"
+
+services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE: auth-service
+    container_name: kaizen-auth-service
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      PORT: 3001
+    networks:
+      - internal
+
+  goals-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE: goals-service
+    container_name: kaizen-goals-service
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      PORT: 3002
+    networks:
+      - internal
+
+  analytics-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE: analytics-service
+    container_name: kaizen-analytics-service
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      PORT: 3004
+    networks:
+      - internal
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.service
+      args:
+        SERVICE: api-gateway
+    container_name: kaizen-api-gateway
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      PORT: 3003
+      AUTH_SERVICE_URL: http://kaizen-auth-service:3001
+      GOALS_SERVICE_URL: http://kaizen-goals-service:3002
+      ANALYTICS_SERVICE_URL: http://kaizen-analytics-service:3004
+    networks:
+      - proxy
+      - internal
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=proxy
+      - traefik.http.routers.kaizen-api.entrypoints=web
+      - traefik.http.routers.kaizen-api.priority=100
+      - traefik.http.services.kaizen-api.loadbalancer.server.port=3003
+      - "traefik.http.routers.kaizen-api.rule=PathPrefix(`/health`) || PathPrefix(`/auth`) || PathPrefix(`/goals`) || PathPrefix(`/analytics`)"
+
+  migrate:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    volumes:
+      - .:/app
+    env_file: .env.prod
+    networks:
+      - internal
+    entrypoint: ["/bin/bash", "-lc"]
+    command: >
+      corepack enable &&
+      yarn install --frozen-lockfile &&
+      yarn prisma generate --config apps/auth-service/prisma.config.ts &&
+      yarn prisma generate --config apps/goals-service/prisma.config.ts &&
+      yarn prisma generate --config apps/analytics-service/prisma.config.ts &&
+      yarn migrate:be
+    profiles:
+      - migrate
+
+networks:
+  proxy:
+    external: true
+  internal:
+    external: true
