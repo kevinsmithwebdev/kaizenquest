@@ -6,6 +6,9 @@
     "@kaizen/domain-goals": "0.0.1",
     "@kaizen/shared-api-client": "0.0.1",
     "@kaizen/shared-contracts": "0.0.1",
-    "@kaizen/shared-utils": "0.0.1"
+    "@kaizen/shared-utils": "0.0.1",
+    "next": "16.2.9",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   }
 }

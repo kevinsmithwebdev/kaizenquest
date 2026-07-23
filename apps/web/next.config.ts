@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
     "@kaizen/shared-contracts",
     "@kaizen/shared-api-client",
   ],
+  // Keep Turbopack's filesystem root at the monorepo root so workspace
+  // packages under libs/ resolve, and so hoisted next/ can be found.
+  outputFileTracingRoot: workspaceRoot,
   turbopack: {
     root: workspaceRoot,
   },
