@@ -4,9 +4,17 @@ import { Compass } from "lucide-react";
 import { mainNavItems, routes } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
-export function AppSidebar() {
+type AppSidebarContentProps = {
+  className?: string;
+  onNavigate?: () => void;
+};
+
+export function AppSidebarContent({
+  className,
+  onNavigate,
+}: Readonly<AppSidebarContentProps>) {
   return (
-    <aside className="border-sidebar-border bg-sidebar flex h-screen w-64 shrink-0 flex-col border-r">
+    <div className={cn("flex h-full flex-col", className)}>
       <div className="border-sidebar-border flex items-center gap-2.5 border-b px-5 py-5">
         <div className="bg-brand text-brand-foreground flex size-9 items-center justify-center rounded-lg">
           <Compass className="size-5" aria-hidden />
@@ -25,6 +33,7 @@ export function AppSidebar() {
             <Link
               key={item.label}
               href={item.href}
+              onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
@@ -51,6 +60,14 @@ export function AppSidebar() {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function AppSidebar() {
+  return (
+    <aside className="border-sidebar-border bg-sidebar hidden h-screen w-64 shrink-0 flex-col border-r min-[1200px]:flex">
+      <AppSidebarContent />
     </aside>
   );
 }

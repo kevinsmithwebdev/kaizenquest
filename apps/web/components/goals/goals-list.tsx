@@ -56,8 +56,8 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
   };
 
   return (
-    <>
-      <Card className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden py-0">
+    <div className="flex flex-col lg:h-full lg:min-h-0 lg:flex-1">
+      <Card className="flex flex-col gap-0 overflow-hidden py-0 lg:min-h-0 lg:flex-1">
         <GoalsListHeader
           selectedPeriods={selectedPeriods}
           onTogglePeriod={togglePeriod}
@@ -66,7 +66,7 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
           onAddGoal={() => setAddGoalOpen(true)}
         />
 
-        <ScrollFade className="min-h-0 flex-1">
+        <ScrollFade className="lg:min-h-0 lg:flex-1">
           {visibleGoals.length === 0 ? (
             <p className="text-muted-foreground px-(--card-spacing) py-8 text-center text-sm">
               {goals.length === 0
@@ -74,7 +74,7 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
                 : "No goals match the selected periods."}
             </p>
           ) : (
-            <ul className="grid grid-cols-[2.5rem_minmax(0,1fr)_0_8.5rem_1.75rem_2rem] gap-x-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_5.5rem_8.5rem_1.75rem_2rem]">
+            <ul className="flex flex-col min-[500px]:grid min-[500px]:grid-cols-[2.5rem_minmax(0,1fr)_0_8.5rem_1.75rem_2rem] min-[500px]:gap-x-4 sm:grid-cols-[2.5rem_minmax(0,1fr)_5.5rem_8.5rem_1.75rem_2rem]">
               {visibleGoals.map((goal) => (
                 <GoalListItem
                   key={goal.id}
@@ -131,6 +131,6 @@ export function GoalsList({ goals }: Readonly<GoalsListProps>) {
           }
         }}
       />
-    </>
+    </div>
   );
 }

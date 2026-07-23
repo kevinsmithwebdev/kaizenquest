@@ -11,7 +11,7 @@ export function ScrollFade({ children, className, ...props }: ScrollFadeProps) {
   const { ref, canScrollUp, canScrollDown } = useScrollOverflow();
 
   return (
-    <div className={cn("relative min-h-0", className)} {...props}>
+    <div className={cn("relative", className)} {...props}>
       {canScrollUp ? (
         <div
           aria-hidden
@@ -24,7 +24,7 @@ export function ScrollFade({ children, className, ...props }: ScrollFadeProps) {
           className="from-card pointer-events-none absolute inset-x-0 bottom-0 z-10 h-4 bg-gradient-to-t to-transparent shadow-[inset_0_-6px_6px_-6px_rgba(0,0,0,0.08)]"
         />
       ) : null}
-      <div ref={ref} className="h-full overflow-y-auto overscroll-contain">
+      <div ref={ref} className="overflow-y-auto overscroll-contain lg:h-full">
         {children}
       </div>
     </div>

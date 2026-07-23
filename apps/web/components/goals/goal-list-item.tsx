@@ -38,15 +38,25 @@ export function GoalListItem({
   const categoryIcon = getGoalCategoryIcon(goal.category);
 
   return (
-    <li className="border-border hover:bg-foreground/5 col-span-full grid grid-cols-subgrid items-center border-b transition-colors last:border-b-0">
+    <li
+      className={cn(
+        "border-border hover:bg-foreground/5 border-b transition-colors last:border-b-0",
+        "max-[499px]:flex max-[499px]:items-center max-[499px]:gap-1 max-[499px]:px-2.25 max-[499px]:py-4",
+        "min-[500px]:col-span-full min-[500px]:grid min-[500px]:grid-cols-subgrid min-[500px]:items-center",
+      )}
+    >
       <button
         type="button"
         onClick={onSelect}
         aria-label={`Log event for ${goal.name}`}
-        className="col-span-5 grid w-full cursor-pointer grid-cols-subgrid items-center gap-x-4 py-4 pr-2 pl-2.25 text-left"
+        className={cn(
+          "cursor-pointer text-left",
+          "max-[499px]:grid max-[499px]:min-w-0 max-[499px]:flex-1 max-[499px]:grid-cols-[2.5rem_minmax(0,1fr)] max-[499px]:items-center max-[499px]:gap-x-3 max-[499px]:gap-y-2",
+          "min-[500px]:col-span-5 min-[500px]:grid min-[500px]:w-full min-[500px]:grid-cols-subgrid min-[500px]:items-center min-[500px]:gap-x-4 min-[500px]:py-4 min-[500px]:pr-2 min-[500px]:pl-2.25",
+        )}
       >
         <div
-          className="flex size-10 shrink-0 items-center justify-center rounded-[calc(var(--radius-xl)/2)]"
+          className="flex size-10 shrink-0 items-center justify-center rounded-[calc(var(--radius-xl)/2)] max-[499px]:row-span-2"
           style={{
             color: categoryColors.icon,
             backgroundColor: categoryColors.background,
@@ -75,16 +85,30 @@ export function GoalListItem({
           <p className="text-muted-foreground text-sm">{target.label}</p>
         </div>
 
+        <div className="max-[499px]:col-start-2 min-[500px]:hidden">
+          <p
+            className="text-sm font-semibold tabular-nums"
+            style={{ color: progressColor }}
+          >
+            {progress.current}
+            <span className="text-muted-foreground font-normal">
+              {" "}
+              {progress.suffix}
+            </span>
+          </p>
+        </div>
+
         <GoalProgressRing
           value={progress.current}
           label={progress.suffix}
           percent={progress.percent}
           color={progressColor}
+          className="max-[499px]:hidden"
         />
 
         <div
           className={cn(
-            "flex size-7 shrink-0 items-center justify-center justify-self-end rounded-full border-2",
+            "size-7 shrink-0 items-center justify-center justify-self-end rounded-full border-2 max-[499px]:hidden min-[500px]:flex",
             met
               ? "border-success bg-success-subtle text-success"
               : "border-border bg-background",
